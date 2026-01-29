@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Virus Simulation</title>
+    <!-- Load Brython -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+</head>
+<body onload="brython()">
+
+<h1>Virus Simulation</h1>
+<p>Watch how viruses spread in real time!</p>
+
+<!-- Your Python code runs here -->
+<script type="text/python">
+from browser import document, html
+
+# Example: simple virus spread demo
+infected = 1
+days = 10
+
+for day in range(days):
+    infected *= 2
+    document <= html.P(f"Day {day+1}: {infected} infected")
+</script>
+
+</body>
+</html>
