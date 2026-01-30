@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ViralX Virus Simulation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      overflow: hidden;
+      background: #1a1a1a;
+    }
+    
+    button {
+      background: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 14px;
+      font-family: monospace;
+      transition: background 0.3s;
+    }
+    
+    button:hover {
+      background: #45a049;
+    }
+    
+    button:active {
+      background: #3d8b40;
+    }
+    
+    input[type="range"] {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React and Babel for JSX compilation -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Your simulation code -->
+  <script type="text/babel">
+    // Paste the contents of VirusSim.jsx here, or import it
+    // For now, I'll include it inline for a single-file solution
+    
+    // === CONFIGURATION CONSTANTS ===
+    const CONFIG = {
+      CANVAS_WIDTH: 1300,
+      CANVAS_HEIGHT: 700,
+      SIM_AREA_WIDTH: 650,
+      FPS: 60,
+      PERSON_RADIUS: 15,
+      PERSON_SPEED: 1,
+      
+      PRESETS: {
+        COVID: { incube: 5.5, infect: 20, rate: 0.33, dist: 16, survival: 0.98 },
+        TB: { incube: 10, infect: 30, rate: 0.11, dist: 15, survival: 0.9 },
+        RHINO: { incube: 0.5, infect: 5.5, rate: 0.25, dist: 20, survival: 0.99 },
+        MEASLES: { incube: 8.5, infect: 13, rate: 0.9, dist: 100, survival: 0.97 }
+      }
+    };
+
+    // Person class
+    class Person {
+      constructor(x, y, state, incube, infect) {
+        this.x = x;
+        this.y = y;
+        this.radius = CONFIG.PERSON_RADIUS;
+        this.speed = CONFIG.PERSON_SPEED;
+        
+        this.angle = Math.random() * Math.PI * 2;
+        this.vx = Math.cos(this.angle) * this.speed;
+        this.vy = Math.sin(this.angle) * this.speed;
+        
+        this.state = state;
+        this.infectTimer = Math.floor(Math.random() * 60);
+        this.recoveryTimer = infect * 60;
+        this.carrierTime = this.recoveryTimer - incube * 60;
+      }
+      
+      move(quarantine, infectedPeople) {
+        if (this.state === 'dead') return;
+        
+        if (this.x <= this.radius || this.x + this.radius >= CONFIG.SIM_AREA_WIDTH) {
+          this.vx *= -1;
+        }
+        if (this.y <= this.radius || this.y + this.radius >= CONFIG.CANVAS_HEIGHT) {
+          this.vy *= -1;
+        }
+        
+        if (this.state !== 'infected' && quarantine > 0) {
+          for (const infected of infectedPeople) {
+            if (infected.recoveryTimer <= infected.carrierTime) {
+              const dist = this.distanceTo(infected);
+              if (dist <= quarantine && dist > 0) {
+                this.vx = (this.x - infected.x) / dist * this.speed;
+                this.vy = (this.y - infected.y) / dist * this.speed;
+                break;
+              }
+            }
+          }
+        }
+        
+        this.x += this.vx;
+        this.y += this.vy;
+      }
+      
+      tryInfect(people, infectionDist, infectionRate) {
+        if (this.state !== 'infected') return;
+        
+        const actualRate = this.recoveryTimer <= this.carrierTime 
+          ? infectionRate 
+          : infectionRate / 2;
+        
+        for (const person of people) {
+          if (person.state === 'normal' && this.distanceTo(person) <= infectionDist) {
+            if (Math.random() <= actualRate) {
+              person.state = 'infected';
+            }
+          }
+        }
+      }
+      
+      updateDisease(survivalRate) {
+        if (this.state !== 'infected') return;
+        
+        this.infectTimer = (this.infectTimer + 1) % 60;
+        this.recoveryTimer--;
+        
+        if (this.recoveryTimer <= 0) {
+          this.state = Math.random() <= survivalRate ? 'recovered' : 'dead';
+        }
+      }
+      
+      distanceTo(other) {
+        const dx = this.x - other.x;
+        const dy = this.y - other.y;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+      
+      getVisualState() {
+        if (this.state !== 'infected') return this.state;
+        return this.recoveryTimer <= this.carrierTime ? 'sick' : 'carrier';
+      }
+    }
+
+    // Main component
+    function VirusSim() {
+      const [simState, setSimState] = React.useState('start');
+      const [paused, setPaused] = React.useState(true);
+      const [showInstructions, setShowInstructions] = React.useState(false);
+      
+      const [population, setPopulation] = React.useState(155);
+      const [incubation, setIncubation] = React.useState(5.5);
+      const [infectionTime, setInfectionTime] = React.useState(20);
+      const [vaccinationRate, setVaccinationRate] = React.useState(0);
+      const [infectionRate, setInfectionRate] = React.useState(0.33);
+      const [infectionDist, setInfectionDist] = React.useState(16);
+      const [survivalRate, setSurvivalRate] = React.useState(0.98);
+      const [quarantineDist, setQuarantineDist] = React.useState(0);
+      
+      const [people, setPeople] = React.useState([]);
+      const [trackData, setTrackData] = React.useState({
+        normal: [],
+        infected: [],
+        recovered: [],
+        dead: []
+      });
+      const [analysisData, setAnalysisData] = React.useState(null);
+      
+      const canvasRef = React.useRef(null);
+      const frameCountRef = React.useRef(0);
+      const animationRef = React.useRef(null);
+      
+      const applyPreset = (preset) => {
+        const p = CONFIG.PRESETS[preset];
+        setIncubation(p.incube);
+        setInfectionTime(p.infect);
+        setInfectionRate(p.rate);
+        setInfectionDist(p.dist);
+        setSurvivalRate(p.survival);
+      };
+      
+      const startSimulation = () => {
+        const newPeople = [];
+        
+        for (let i = 0; i < population; i++) {
+          const x = Math.random() * (CONFIG.SIM_AREA_WIDTH - 20) + 10;
+          const y = Math.random() * (CONFIG.CANVAS_HEIGHT - 20) + 10;
+          newPeople.push(new Person(x, y, 'normal', incubation, infectionTime));
+        }
+        
+        const vacCount = Math.floor(population * vaccinationRate);
+        for (let i = 0; i < vacCount; i++) {
+          newPeople[i].state = 'recovered';
+        }
+        
+        newPeople[0].state = 'infected';
+        
+        setPeople(newPeople);
+        setSimState('sim');
+        setPaused(false);
+      };
+      
+      const infectOnePerson = () => {
+        setPeople(prev => {
+          const updated = [...prev];
+          const normalPerson = updated.find(p => p.state === 'normal');
+          if (normalPerson) normalPerson.state = 'infected';
+          return updated;
+        });
+      };
+      
+      const resetSimulation = () => {
+        setTrackData({ normal: [], infected: [], recovered: [], dead: [] });
+        frameCountRef.current = 0;
+        startSimulation();
+      };
+      
+      const goToAnalysis = () => {
+        const total = trackData.normal.length;
+        const lerp = (start, end, t) => start + (end - start) * t;
+        const generatePoints = (data) => data.map((value, i) => ({
+          x: lerp(167, 567, i / total),
+          y: lerp(367, 176, value / population)
+        }));
+        
+        setAnalysisData({
+          totalDays: total,
+          normPoints: generatePoints(trackData.normal),
+          infectPoints: generatePoints(trackData.infected),
+          recoverPoints: generatePoints(trackData.recovered),
+          deadPoints: generatePoints(trackData.dead)
+        });
+        setSimState('analysis');
+      };
+      
+      // Keyboard controls
+      React.useEffect(() => {
+        const handleKeyPress = (e) => {
+          if (e.code === 'Space' && simState === 'start') {
+            e.preventDefault();
+            startSimulation();
+          }
+          if (e.code === 'KeyP' && simState === 'sim') {
+            setPaused(p => !p);
+          }
+          if (e.code === 'KeyI' && simState === 'start') {
+            setShowInstructions(s => !s);
+          }
+          if (e.code === 'Space' && simState === 'sim' && trackData.infected.length > 0 
+              && trackData.infected[trackData.infected.length - 1] === 0) {
+            e.preventDefault();
+            goToAnalysis();
+          }
+        };
+        
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+      }, [simState, trackData]);
+      
+      // Animation loop
+      React.useEffect(() => {
+        if (simState !== 'sim' || !canvasRef.current) return;
+        
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        
+        const getStateColor = (state) => {
+          const colors = {
+            normal: '#FFFFFF',
+            carrier: '#FFA500',
+            sick: '#00FF00',
+            recovered: '#00FFFF',
+            dead: '#960000'
+          };
+          return colors[state] || '#FFFFFF';
+        };
+        
+        const animate = () => {
+          ctx.fillStyle = '#646464';
+          ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+          
+          if (!paused) {
+            const infected = people.filter(p => p.state === 'infected');
+            
+            people.forEach(person => {
+              person.move(quarantineDist, infected);
+              
+              if (person.infectTimer === 0) {
+                person.tryInfect(people, infectionDist, infectionRate);
+              }
+              
+              person.updateDisease(survivalRate);
+            });
+            
+            if (frameCountRef.current === 0) {
+              const counts = { normal: 0, infected: 0, recovered: 0, dead: 0 };
+              people.forEach(p => counts[p.state]++);
+              
+              setTrackData(prev => ({
+                normal: [...prev.normal, counts.normal],
+                infected: [...prev.infected, counts.infected],
+                recovered: [...prev.recovered, counts.recovered],
+                dead: [...prev.dead, counts.dead]
+              }));
+            }
+            
+            frameCountRef.current = (frameCountRef.current + 1) % 60;
+          }
+          
+          people.forEach(person => {
+            const visualState = person.getVisualState();
+            ctx.fillStyle = getStateColor(visualState);
+            ctx.beginPath();
+            ctx.arc(person.x, person.y, person.radius, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          
+          animationRef.current = requestAnimationFrame(animate);
+        };
+        
+        animate();
+        
+        return () => {
+          if (animationRef.current) {
+            cancelAnimationFrame(animationRef.current);
+          }
+        };
+      }, [simState, paused, people, infectionDist, infectionRate, survivalRate, quarantineDist]);
+      
+      return (
+        <div style={{ 
+          width: '100vw', 
+          height: '100vh', 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          backgroundColor: '#1a1a1a',
+          fontFamily: 'monospace'
+        }}>
+          <div style={{ position: 'relative' }}>
+            <canvas 
+              ref={canvasRef}
+              width={CONFIG.CANVAS_WIDTH}
+              height={CONFIG.CANVAS_HEIGHT}
+              style={{ border: '2px solid #333' }}
+            />
+            
+            {simState === 'start' && (
+              <StartScreen 
+                population={population}
+                setPopulation={setPopulation}
+                incubation={incubation}
+                setIncubation={setIncubation}
+                infectionTime={infectionTime}
+                setInfectionTime={setInfectionTime}
+                vaccinationRate={vaccinationRate}
+                setVaccinationRate={setVaccinationRate}
+                applyPreset={applyPreset}
+                showInstructions={showInstructions}
+              />
+            )}
+            
+            {simState === 'sim' && (
+              <SimControls 
+                paused={paused}
+                setPaused={setPaused}
+                infectOnePerson={infectOnePerson}
+                resetSimulation={resetSimulation}
+                infectionRate={infectionRate}
+                setInfectionRate={setInfectionRate}
+                infectionDist={infectionDist}
+                setInfectionDist={setInfectionDist}
+                survivalRate={survivalRate}
+                setSurvivalRate={setSurvivalRate}
+                quarantineDist={quarantineDist}
+                setQuarantineDist={setQuarantineDist}
+                trackData={trackData}
+                goToAnalysis={goToAnalysis}
+              />
+            )}
+            
+            {simState === 'analysis' && analysisData && (
+              <AnalysisScreen 
+                data={analysisData}
+                trackData={trackData}
+                population={population}
+              />
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Sub-components
+    function SliderControl({ label, value, onChange, min, max, step = 1 }) {
+      return (
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px' }}>{label}: {value}</label>
+          <input 
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={typeof value === 'string' ? parseFloat(value) : value}
+            onChange={(e) => onChange(parseFloat(e.target.value))}
+            style={{ width: '200px', display: 'block' }}
+          />
+        </div>
+      );
+    }
+
+    function StartScreen({ 
+      population, setPopulation, 
+      incubation, setIncubation, 
+      infectionTime, setInfectionTime, 
+      vaccinationRate, setVaccinationRate,
+      applyPreset, 
+      showInstructions 
+    }) {
+      return (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(100, 100, 100, 0.95)',
+          color: 'white',
+          padding: '20px'
+        }}>
+          <h1 style={{ textAlign: 'center', fontSize: '48px', marginBottom: '40px' }}>ViralX Virus Sim</h1>
+          
+          <div style={{ position: 'absolute', left: '1000px', top: '150px' }}>
+            <SliderControl 
+              label="Population"
+              value={population}
+              onChange={setPopulation}
+              min={10}
+              max={300}
+            />
+            <SliderControl 
+              label="Incubation Time"
+              value={incubation.toFixed(1)}
+              onChange={setIncubation}
+              min={1}
+              max={10}
+              step={0.1}
+            />
+            <SliderControl 
+              label="Infection Time"
+              value={infectionTime.toFixed(1)}
+              onChange={setInfectionTime}
+              min={1}
+              max={40}
+              step={0.1}
+            />
+            <SliderControl 
+              label="Vaccination Rate"
+              value={(vaccinationRate * 100).toFixed(0) + '%'}
+              onChange={(v) => setVaccinationRate(v / 100)}
+              min={0}
+              max={100}
+            />
+            
+            <h3 style={{ marginTop: '20px', marginBottom: '10px' }}>Disease Presets</h3>
+            <button onClick={() => applyPreset('COVID')}>COVID-19</button>
+            <button onClick={() => applyPreset('TB')}>TB</button>
+            <button onClick={() => applyPreset('RHINO')}>Rhinovirus</button>
+            <button onClick={() => applyPreset('MEASLES')}>Measles</button>
+          </div>
+          
+          <div style={{ position: 'absolute', left: '700px', top: '450px', textAlign: 'center', fontSize: '18px' }}>
+            <p style={{ marginBottom: '10px' }}>Press SPACE to continue</p>
+            <p style={{ marginBottom: '10px' }}>Press P to pause</p>
+            <p>Press I for instructions</p>
+          </div>
+          
+          {showInstructions && (
+            <div style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: 'rgba(50, 50, 50, 0.98)',
+              padding: '30px',
+              borderRadius: '10px',
+              maxWidth: '600px'
+            }}>
+              <h2>Instructions</h2>
+              <p>This simulation models the spread of infectious diseases.</p>
+              <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
+                <li>White = Healthy</li>
+                <li>Orange = Infected (carrier, not visibly sick)</li>
+                <li>Green = Infected (visibly sick)</li>
+                <li>Cyan = Recovered (immune)</li>
+                <li>Dark Red = Dead</li>
+              </ul>
+              <p style={{ marginTop: '15px' }}>Adjust parameters to see how diseases spread!</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function SimControls({ 
+      paused, setPaused, 
+      infectOnePerson, resetSimulation,
+      infectionRate, setInfectionRate,
+      infectionDist, setInfectionDist,
+      survivalRate, setSurvivalRate,
+      quarantineDist, setQuarantineDist,
+      trackData, goToAnalysis
+    }) {
+      return (
+        <div style={{
+          position: 'absolute',
+          right: '20px',
+          top: '20px',
+          color: 'white',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          padding: '20px',
+          borderRadius: '10px',
+          minWidth: '250px'
+        }}>
+          <h2 style={{ marginBottom: '15px' }}>Control Panel</h2>
+          <button onClick={() => setPaused(!paused)}>
+            {paused ? 'Start' : 'Pause'}
+          </button>
+          <button onClick={infectOnePerson}>Infect One</button>
+          <button onClick={resetSimulation}>Reset</button>
+          
+          <div style={{ marginTop: '20px' }}>
+            <SliderControl 
+              label="Infection Rate"
+              value={(infectionRate * 100).toFixed(0) + '%'}
+              onChange={(v) => setInfectionRate(v / 100)}
+              min={0}
+              max={100}
+            />
+            <SliderControl 
+              label="Infection Distance"
+              value={infectionDist}
+              onChange={setInfectionDist}
+              min={0}
+              max={50}
+            />
+            <SliderControl 
+              label="Survival Rate"
+              value={(survivalRate * 100).toFixed(0) + '%'}
+              onChange={(v) => setSurvivalRate(v / 100)}
+              min={0}
+              max={100}
+            />
+            <SliderControl 
+              label="Quarantine Distance"
+              value={quarantineDist}
+              onChange={setQuarantineDist}
+              min={0}
+              max={50}
+            />
+          </div>
+          
+          {trackData.infected.length > 0 && trackData.infected[trackData.infected.length - 1] === 0 && (
+            <button onClick={goToAnalysis} style={{ 
+              marginTop: '20px', 
+              fontSize: '16px',
+              padding: '15px',
+              width: '100%'
+            }}>
+              📊 Analyze Data
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    function AnalysisScreen({ data, trackData, population }) {
+      const [timeSlider, setTimeSlider] = React.useState(0);
+      const canvasRef = React.useRef(null);
+      
+      const sliderTime = Math.floor(timeSlider);
+      
+      React.useEffect(() => {
+        if (!canvasRef.current || !data) return;
+        
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.fillStyle = '#646464';
+        ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+        
+        const drawLine = (points, color) => {
+          if (points.length < 2) return;
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
+          points.forEach(p => ctx.lineTo(p.x, p.y));
+          ctx.stroke();
+        };
+        
+        drawLine(data.normPoints, '#FFFFFF');
+        drawLine(data.infectPoints, '#009600');
+        drawLine(data.recoverPoints, '#00FFFF');
+        drawLine(data.deadPoints, '#960000');
+        
+        const xPos = 167 + (567 - 167) * (sliderTime / (data.totalDays - 1));
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(xPos, 100);
+        ctx.lineTo(xPos, 425);
+        ctx.stroke();
+        
+        // Pie chart
+        const centerX = 993;
+        const centerY = 373;
+        const radius = 200;
+        
+        const normAngle = 360 * trackData.normal[sliderTime] / population;
+        const infAngle = normAngle + 360 * trackData.infected[sliderTime] / population;
+        const recAngle = infAngle + 360 * trackData.recovered[sliderTime] / population;
+        
+        for (let i = 0; i < 360; i++) {
+          const radian = i * Math.PI / 180;
+          const dx = Math.cos(radian) * radius + centerX;
+          const dy = -Math.sin(radian) * radius + centerY;
+          
+          ctx.strokeStyle = i <= normAngle ? '#FFFFFF' :
+                            i <= infAngle ? '#009600' :
+                            i <= recAngle ? '#00FFFF' : '#960000';
+          ctx.lineWidth = 6;
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(dx, dy);
+          ctx.stroke();
+        }
+        
+      }, [data, sliderTime, trackData, population]);
+      
+      return (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          color: 'white'
+        }}>
+          <canvas 
+            ref={canvasRef}
+            width={CONFIG.CANVAS_WIDTH}
+            height={CONFIG.CANVAS_HEIGHT}
+          />
+          
+          <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)' }}>
+            <h1 style={{ fontSize: '48px' }}>Data Analysis</h1>
+          </div>
+          
+          <div style={{ position: 'absolute', bottom: '100px', left: '367px', width: '401px' }}>
+            <input 
+              type="range"
+              min={0}
+              max={data.totalDays - 1}
+              value={timeSlider}
+              onChange={(e) => setTimeSlider(parseFloat(e.target.value))}
+              style={{ width: '100%' }}
+            />
+            <div style={{ textAlign: 'center', fontSize: '18px', marginTop: '10px' }}>Day {sliderTime}</div>
+          </div>
+          
+          <div style={{ position: 'absolute', bottom: '50px', left: '200px', fontSize: '16px' }}>
+            <div style={{ marginBottom: '5px' }}>
+              ⚪ Normal: {trackData.normal[sliderTime]} ({Math.round(trackData.normal[sliderTime] / population * 100)}%)
+            </div>
+            <div style={{ marginBottom: '5px' }}>
+              🟢 Infected: {trackData.infected[sliderTime]} ({Math.round(trackData.infected[sliderTime] / population * 100)}%)
+            </div>
+            <div style={{ marginBottom: '5px' }}>
+              🔵 Recovered: {trackData.recovered[sliderTime]} ({Math.round(trackData.recovered[sliderTime] / population * 100)}%)
+            </div>
+            <div>
+              🔴 Dead: {trackData.dead[sliderTime]} ({Math.round(trackData.dead[sliderTime] / population * 100)}%)
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<VirusSim />);
+  </script>
+</body>
+</html>
+danielqin@
