@@ -5,4 +5,4 @@ This project is a dynamic, real-time disease simulation built with Python.
 
 You can model multiple diseases simultaneously and adjust a wide range of parameters — including infection rate, vaccination, and quarantine — while the simulation is running. The simulation is fully interactive: small changes can drastically alter how an outbreak unfolds, allowing you to explore concepts like exponential growth, herd immunity, and the fragility of complex systems.
 
-[Have fun!](https://danielzxq.github.io/viralx/)
+[Have fun!]([https://danielzxq.github.io/viralx/](https://danielzxq.github.io/viralx/index.html))
