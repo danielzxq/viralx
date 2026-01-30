@@ -1,18 +1,173 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>ViralX Simulation</title>
-    <!-- Load Brython -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+<meta charset="UTF-8">
+<title>ViralX Simulation Brython</title>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+<style>
+  body { font-family: sans-serif; display:flex; flex-direction: row; }
+  #controls { margin-left: 20px; }
+  canvas { border:1px solid black; }
+  label { display:block; margin-top:10px; }
+</style>
 </head>
 <body onload="brython()">
 
-<h1>ViralX Virus Simulation</h1>
-<p>Simulation running in your browser using Python + Brython. alingelingelingeling!</p>
+<canvas id="simCanvas" width="650" height="700"></canvas>
 
-<!-- Link your external Python file -->
-<script type="text/python" src="circle.py"></script>
+<div id="controls">
+  <label>Population: <input type="range" id="popSlider" min="0" max="1" step="0.01" value="0.5"></label>
+  <label>Infection Distance: <input type="range" id="distSlider" min="0" max="50" step="1" value="10"></label>
+  <label>Infection Chance: <input type="range" id="rateSlider" min="0" max="1" step="0.01" value="0.2"></label>
+  <label>Survival Rate: <input type="range" id="survivalSlider" min="0" max="1" step="0.01" value="0.9"></label>
+  <label>Quarantine Distance: <input type="range" id="quarantineSlider" min="0" max="50" step="1" value="20"></label>
+  <button id="startBtn">Start</button>
+  <button id="resetBtn">Reset</button>
+</div>
+
+<script type="text/python">
+from browser import document, html, timer
+import random, math
+
+# ---------------------------
+# Classes (Brython version)
+# ---------------------------
+class Person:
+    def __init__(self, x, y, r=8):
+        self.x = x
+        self.y = y
+        self.r = r
+        self.xv = random.uniform(-2,2)
+        self.yv = random.uniform(-2,2)
+        self.state = "normal"
+        self.infecttimer = random.randint(0,30)
+        self.recoverytimer = 600
+        self.carriertime = 300
+        self.color_map = {"normal":"blue", "infected":"red", "recovered":"green", "dead":"black"}
+
+    def render(self, ctx):
+        ctx.beginPath()
+        ctx.arc(self.x, self.y, self.r, 0, 2*math.pi)
+        ctx.fillStyle = self.color_map[self.state]
+        ctx.fill()
+
+    def move(self, others, quarantine):
+        if self.state != "dead":
+            if self.x <= self.r or self.x >= 650-self.r: self.xv *= -1
+            if self.y <= self.r or self.y >= 700-self.r: self.yv *= -1
+            self.x += self.xv
+            self.y += self.yv
+        # quarantine avoidance
+        if self.state != "infected":
+            for p in others:
+                if p.state=="infected" and math.dist([self.x,self.y],[p.x,p.y]) <= quarantine:
+                    dx = self.x - p.x
+                    dy = self.y - p.y
+                    dist = math.hypot(dx,dy)
+                    if dist>0:
+                        self.xv = dx/dist*2
+                        self.yv = dy/dist*2
+
+    def infect(self, others, mindist, chance):
+        for p in others:
+            if p.state=="normal" and math.dist([self.x,self.y],[p.x,p.y])<=mindist:
+                if random.random()<=chance:
+                    p.state="infected"
+
+    def update(self, ctx, others, mindist, chance, survival, quarantine):
+        self.move(others, quarantine)
+        if self.state=="infected":
+            self.infecttimer=(self.infecttimer+1)%60
+            self.recoverytimer-=1
+            if self.recoverytimer<=0:
+                self.state="recovered" if random.random()<=survival else "dead"
+        if self.state=="infected" and self.infecttimer==0:
+            self.infect(others, mindist, chance)
+        self.render(ctx)
+
+# ---------------------------
+# Slider & Button wrappers
+# ---------------------------
+class Slider:
+    def __init__(self, element_id, startval, endval):
+        self.slider=document[element_id]
+        self.start=startval
+        self.end=endval
+    def findvalue(self):
+        return self.start + (self.end-self.start)*float(self.slider.value)
+
+class Button:
+    def __init__(self, element_id):
+        self.btn=document[element_id]
+        self.clicked=False
+        self.btn.bind("click", self.on_click)
+    def on_click(self, ev):
+        self.clicked=True
+    def was_clicked(self):
+        if self.clicked:
+            self.clicked=False
+            return True
+        return False
+
+# ---------------------------
+# Simulation setup
+# ---------------------------
+canvas=document["simCanvas"]
+ctx=canvas.getContext("2d")
+
+POPULATION=50
+people=[]
+paused=True
+
+# Sliders & buttons
+popSlider=Slider("popSlider", 0,100)
+distSlider=Slider("distSlider",0,50)
+rateSlider=Slider("rateSlider",0,1)
+survivalSlider=Slider("survivalSlider",0,1)
+quarantineSlider=Slider("quarantineSlider",0,50)
+startBtn=Button("startBtn")
+resetBtn=Button("resetBtn")
+
+# ---------------------------
+# Initialize people
+# ---------------------------
+def init_people():
+    global people
+    n=int(popSlider.findvalue())
+    people=[Person(random.randint(10,640), random.randint(10,690)) for _ in range(n)]
+    if people:
+        people[0].state="infected"
+
+# ---------------------------
+# Animation loop
+# ---------------------------
+def update_sim():
+    ctx.clearRect(0,0,650,700)
+    mindist=distSlider.findvalue()
+    chance=rateSlider.findvalue()
+    survival=survivalSlider.findvalue()
+    quarantine=quarantineSlider.findvalue()
+    for p in people:
+        p.update(ctx, people, mindist, chance, survival, quarantine)
+
+# ---------------------------
+# Start/reset handling
+# ---------------------------
+def start_click(ev):
+    global paused
+    paused=False
+
+def reset_click(ev):
+    global paused
+    paused=True
+    init_people()
+
+startBtn.btn.bind("click", start_click)
+resetBtn.btn.bind("click", reset_click)
+
+init_people()
+timer.set_interval(update_sim, 33)  # ~30 FPS
+</script>
 
 </body>
 </html>
