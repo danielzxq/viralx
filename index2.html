@@ -14,71 +14,333 @@
     body {
       overflow: hidden;
       background: #1a1a1a;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
     button {
-      background: #4CAF50;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border: none;
       color: white;
-      padding: 10px 20px;
-      margin: 5px;
+      padding: 12px 24px;
+      margin: 8px 4px;
       cursor: pointer;
-      border-radius: 5px;
+      border-radius: 8px;
       font-size: 14px;
-      font-family: monospace;
-      transition: background 0.3s;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
     
     button:hover {
-      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
     
     button:active {
-      background: #3d8b40;
+      transform: translateY(0);
+    }
+    
+    button.secondary {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    button.success {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    button.danger {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+    
+    button.tab {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px 20px;
+      margin: 4px;
+      border-radius: 8px 8px 0 0;
+    }
+    
+    button.tab.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    button.speed-control {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      font-size: 18px;
+      padding: 15px 30px;
+      user-select: none;
+    }
+    
+    button.speed-control:active {
+      background: linear-gradient(135deg, #ff5252 0%, #dd4a5f 100%);
     }
     
     input[type="range"] {
       cursor: pointer;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(to right, #667eea, #764ba2);
+      border-radius: 5px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .control-panel {
+      background: rgba(30, 30, 30, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s ease;
+    }
+    
+    .control-panel.collapsed {
+      transform: translateX(calc(100% + 40px));
+    }
+    
+    .slider-label {
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: block;
+    }
+    
+    .slider-value {
+      color: #667eea;
+      font-weight: 700;
+    }
+    
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .stats-box {
+      background: rgba(50, 50, 50, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 10px 0;
+      border-left: 4px solid #667eea;
+    }
+    
+    .tab-content {
+      margin-top: 15px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    
+    .alert-banner {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 50, 50, 0.95);
+      color: white;
+      padding: 15px 30px;
+      borderRadius: 10px;
+      fontSize: 18px;
+      fontWeight: bold;
+      boxShadow: 0 4px 20px rgba(255, 0, 0, 0.5);
+      zIndex: 1000;
+    }
+    
+    .superspreader-alert {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 165, 0, 0.95);
+      color: white;
+      padding: 15px 30px;
+      borderRadius: 10px;
+      fontSize: 18px;
+      fontWeight: bold;
+      boxShadow: 0 4px 20px rgba(255, 165, 0, 0.5);
+      zIndex: 1000;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .toggle-button {
+      position: fixed;
+      right: 0px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(40, 40, 40, 0.95);
+      border: 2px solid rgba(255,255,255,0.3);
+      border-right: none;
+      color: white;
+      width: 36px;
+      height: 80px;
+      border-radius: 10px 0 0 10px;
+      cursor: pointer;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: background 0.2s;
+    }
+    .toggle-button:hover {
+      background: rgba(102, 126, 234, 0.9);
+      transform: translateY(-50%);
+      box-shadow: none;
+    }
+    
+    .welcome-panel {
+      max-width: 800px;
+      max-height: 70vh;
+      overflow-y: auto;
+      background: rgba(30, 30, 30, 0.98);
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    
+    .virus-decoration {
+      width: 150px;
+      height: 150px;
+      opacity: 0.3;
+      filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.5));
     }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
-  <!-- React and Babel for JSX compilation -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Your simulation code -->
   <script type="text/babel">
-    // Paste the contents of VirusSim.jsx here, or import it
-    // For now, I'll include it inline for a single-file solution
-    
-    // === CONFIGURATION CONSTANTS ===
     const CONFIG = {
-      CANVAS_WIDTH: 1300,
-      CANVAS_HEIGHT: 700,
-      SIM_AREA_WIDTH: 650,
-      FPS: 60,
-      PERSON_RADIUS: 15,
-      PERSON_SPEED: 1,
+      CANVAS_WIDTH: window.innerWidth,
+      CANVAS_HEIGHT: window.innerHeight,
+      SIM_AREA_WIDTH: window.innerWidth,
+      PERSON_RADIUS: 12,
+      PERSON_SPEED: 3.0,
+      SPEED_MULTIPLIER: 4,
       
       PRESETS: {
-        COVID: { incube: 5.5, infect: 20, rate: 0.33, dist: 16, survival: 0.98 },
-        TB: { incube: 10, infect: 30, rate: 0.11, dist: 15, survival: 0.9 },
-        RHINO: { incube: 0.5, infect: 5.5, rate: 0.25, dist: 20, survival: 0.99 },
-        MEASLES: { incube: 8.5, infect: 13, rate: 0.9, dist: 100, survival: 0.97 }
+        COVID: { 
+          name: 'COVID-19',
+          incubation: 5.5, 
+          infectionTime: 14, 
+          infectionRate: 0.35, 
+          infectionDist: 20, 
+          survival: 0.982
+        },
+        TB: { 
+          name: 'Tuberculosis',
+          incubation: 10, 
+          infectionTime: 14, 
+          infectionRate: 0.10, 
+          infectionDist: 15, 
+          survival: 0.85
+        },
+        RHINO: { 
+          name: 'Rhinovirus',
+          incubation: 2, 
+          infectionTime: 7, 
+          infectionRate: 0.30, 
+          infectionDist: 25, 
+          survival: 0.999
+        },
+        MEASLES: { 
+          name: 'Measles',
+          incubation: 10, 
+          infectionTime: 8, 
+          infectionRate: 0.90, 
+          infectionDist: 100, 
+          survival: 0.998
+        },
+        INFLUENZA: { 
+          name: 'Influenza',
+          incubation: 2, 
+          infectionTime: 7, 
+          infectionRate: 0.40, 
+          infectionDist: 30, 
+          survival: 0.998
+        },
+        EBOLA: { 
+          name: 'Ebola',
+          incubation: 8, 
+          infectionTime: 10, 
+          infectionRate: 0.50, 
+          infectionDist: 10, 
+          survival: 0.50
+        }
       }
     };
 
-    // Person class
+    class VirusParticle {
+      constructor(fromX, fromY, toX, toY) {
+        this.x = fromX;
+        this.y = fromY;
+        this.targetX = toX;
+        this.targetY = toY;
+        this.progress = 0;
+        this.speed = 0.1;
+        this.alive = true;
+      }
+      
+      update() {
+        this.progress += this.speed;
+        if (this.progress >= 1) {
+          this.alive = false;
+          return;
+        }
+        this.x = this.x + (this.targetX - this.x) * this.speed;
+        this.y = this.y + (this.targetY - this.y) * this.speed;
+      }
+      
+      draw(ctx) {
+        const alpha = 1 - this.progress;
+        ctx.fillStyle = `rgba(255, 0, 0, ${alpha})`;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'rgba(255, 0, 0, 0.8)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
     class Person {
-      constructor(x, y, state, incube, infect) {
+      constructor(x, y, state, incubationDays, infectionDays, variant = 'original') {
         this.x = x;
         this.y = y;
         this.radius = CONFIG.PERSON_RADIUS;
-        this.speed = CONFIG.PERSON_SPEED;
+        this.baseSpeed = CONFIG.PERSON_SPEED;
+        this.speed = this.baseSpeed;
         
         this.angle = Math.random() * Math.PI * 2;
         this.vx = Math.cos(this.angle) * this.speed;
@@ -86,61 +348,139 @@
         
         this.state = state;
         this.infectTimer = Math.floor(Math.random() * 60);
-        this.recoveryTimer = infect * 60;
-        this.carrierTime = this.recoveryTimer - incube * 60;
+        
+        this.stuckCounter = 0;
+        this.lastX = x;
+        this.lastY = y;
+        
+        this.incubationFrames = incubationDays * 60;
+        this.activeInfectionFrames = infectionDays * 60;
+        this.totalSickFrames = this.incubationFrames + this.activeInfectionFrames;
+        this.sickTimer = this.totalSickFrames;
+        
+        this.variant = variant;
+        this.isSuperSpreader = Math.random() < 0.05;
+        
+        this.immunityTimer = 0;
       }
       
-      move(quarantine, infectedPeople) {
+      move(quarantine, infectedPeople, simWidth, simHeight, mobilityLevel) {
         if (this.state === 'dead') return;
         
-        if (this.x <= this.radius || this.x + this.radius >= CONFIG.SIM_AREA_WIDTH) {
-          this.vx *= -1;
+        // mobilityLevel: 0 = slow, 1 = normal, 2 = fast
+        this.speed = this.baseSpeed * mobilityLevel;
+        
+        // Wall bouncing — only thing that changes direction
+        if (this.x <= this.radius) {
+          this.x = this.radius + 1;
+          this.vx = Math.abs(this.vx);
         }
-        if (this.y <= this.radius || this.y + this.radius >= CONFIG.CANVAS_HEIGHT) {
-          this.vy *= -1;
+        if (this.x + this.radius >= simWidth) {
+          this.x = simWidth - this.radius - 1;
+          this.vx = -Math.abs(this.vx);
+        }
+        if (this.y <= this.radius) {
+          this.y = this.radius + 1;
+          this.vy = Math.abs(this.vy);
+        }
+        if (this.y + this.radius >= simHeight) {
+          this.y = simHeight - this.radius - 1;
+          this.vy = -Math.abs(this.vy);
         }
         
-        if (this.state !== 'infected' && quarantine > 0) {
+        // Quarantine repulsion
+        if (this.state === 'normal' && quarantine > 0) {
           for (const infected of infectedPeople) {
-            if (infected.recoveryTimer <= infected.carrierTime) {
+            if (this.isActivelySick(infected)) {
               const dist = this.distanceTo(infected);
-              if (dist <= quarantine && dist > 0) {
-                this.vx = (this.x - infected.x) / dist * this.speed;
-                this.vy = (this.y - infected.y) / dist * this.speed;
-                break;
+              if (dist < quarantine && dist > 0) {
+                const repelStrength = (quarantine - dist) / quarantine;
+                const angle = Math.atan2(this.y - infected.y, this.x - infected.x);
+                this.vx += Math.cos(angle) * this.speed * repelStrength * 0.3;
+                this.vy += Math.sin(angle) * this.speed * repelStrength * 0.3;
               }
             }
           }
+        }
+        
+        // Normalize velocity to current speed AFTER all forces — this caps it
+        const mag = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+        if (mag > 0) {
+          this.vx = (this.vx / mag) * this.speed;
+          this.vy = (this.vy / mag) * this.speed;
         }
         
         this.x += this.vx;
         this.y += this.vy;
       }
       
-      tryInfect(people, infectionDist, infectionRate) {
+      isActivelySick(person) {
+        return person.state === 'infected' && person.sickTimer <= person.activeInfectionFrames;
+      }
+      
+      tryInfect(people, infectionDist, infectionRate, variantModifiers, virusParticles) {
         if (this.state !== 'infected') return;
         
-        const actualRate = this.recoveryTimer <= this.carrierTime 
-          ? infectionRate 
-          : infectionRate / 2;
+        let actualRate = infectionRate;
+        
+        if (this.variant === 'alpha') actualRate *= variantModifiers.alpha;
+        if (this.variant === 'beta') {
+          actualRate *= variantModifiers.beta;
+        }
+        
+        if (this.isSuperSpreader) {
+          actualRate *= 5;
+        }
         
         for (const person of people) {
           if (person.state === 'normal' && this.distanceTo(person) <= infectionDist) {
             if (Math.random() <= actualRate) {
               person.state = 'infected';
+              person.variant = this.variant;
+              person.sickTimer = person.totalSickFrames;
+              
+              virusParticles.push(new VirusParticle(this.x, this.y, person.x, person.y));
             }
           }
         }
       }
       
-      updateDisease(survivalRate) {
+      updateDisease(survivalRate, hospitalStrained, immunityDuration, vaccineEffectiveness, tickDisease) {
+        if (!tickDisease) return; // timers only tick once per rAF
+        
+        if (this.state === 'vaccinated' && immunityDuration > 0) {
+          this.immunityTimer++;
+          const immunityFrames = immunityDuration * 7 * 60;
+          if (this.immunityTimer > immunityFrames) {
+            this.state = 'normal';
+          }
+        }
+        
+        if (this.state === 'recovered' && immunityDuration > 0) {
+          this.immunityTimer++;
+          const immunityFrames = immunityDuration * 7 * 60;
+          if (this.immunityTimer > immunityFrames) {
+            this.state = 'normal';
+          }
+        }
+        
         if (this.state !== 'infected') return;
         
         this.infectTimer = (this.infectTimer + 1) % 60;
-        this.recoveryTimer--;
+        this.sickTimer--;
         
-        if (this.recoveryTimer <= 0) {
-          this.state = Math.random() <= survivalRate ? 'recovered' : 'dead';
+        if (this.sickTimer <= 0) {
+          let actualSurvival = survivalRate;
+          
+          if (hospitalStrained) {
+            actualSurvival *= 0.75;
+          }
+          
+          if (this.variant === 'beta') {
+            actualSurvival *= 0.80;
+          }
+          
+          this.state = Math.random() <= actualSurvival ? 'recovered' : 'dead';
         }
       }
       
@@ -152,116 +492,214 @@
       
       getVisualState() {
         if (this.state !== 'infected') return this.state;
-        return this.recoveryTimer <= this.carrierTime ? 'sick' : 'carrier';
+        return this.sickTimer <= this.activeInfectionFrames ? 'sick' : 'carrier';
       }
     }
 
-    // Main component
     function VirusSim() {
-      const [simState, setSimState] = React.useState('start');
+      const [simState, setSimState] = React.useState('welcome');
       const [paused, setPaused] = React.useState(true);
       const [showInstructions, setShowInstructions] = React.useState(false);
+      const [activeTab, setActiveTab] = React.useState('properties');
+      const [isSpeedingUp, setIsSpeedingUp] = React.useState(false);
+      const [menuCollapsed, setMenuCollapsed] = React.useState(false);
       
-      const [population, setPopulation] = React.useState(155);
-      const [incubation, setIncubation] = React.useState(5.5);
-      const [infectionTime, setInfectionTime] = React.useState(20);
+      const [population, setPopulation] = React.useState(130);
+      const [incubationDays, setIncubationDays] = React.useState(7);
+      const [infectionDays, setInfectionDays] = React.useState(7);
       const [vaccinationRate, setVaccinationRate] = React.useState(0);
-      const [infectionRate, setInfectionRate] = React.useState(0.33);
-      const [infectionDist, setInfectionDist] = React.useState(16);
-      const [survivalRate, setSurvivalRate] = React.useState(0.98);
-      const [quarantineDist, setQuarantineDist] = React.useState(0);
+      const [infectionRate, setInfectionRate] = React.useState(0.50);
+      const [infectionDist, setInfectionDist] = React.useState(50);
+      const [survivalRate, setSurvivalRate] = React.useState(0.50);
+      const [quarantineDist, setQuarantineDist] = React.useState(25);
+      
+      const [mobilityLevel, setMobilityLevel] = React.useState(1);
+      const [hospitalCapacity, setHospitalCapacity] = React.useState(0);
+      const [mutationEnabled, setMutationEnabled] = React.useState(false);
+      const [mutationRate, setMutationRate] = React.useState(0);
+      const [vaccineEffectiveness, setVaccineEffectiveness] = React.useState(0);
+      const [immunityDuration, setImmunityDuration] = React.useState(0);
       
       const [people, setPeople] = React.useState([]);
+      const [virusParticles, setVirusParticles] = React.useState([]);
       const [trackData, setTrackData] = React.useState({
         normal: [],
-        infected: [],
+        carrier: [],
+        sick: [],
+        vaccinated: [],
         recovered: [],
         dead: []
       });
       const [analysisData, setAnalysisData] = React.useState(null);
+      const [hospitalStrained, setHospitalStrained] = React.useState(false);
+      const [superSpreaderActive, setSuperSpreaderActive] = React.useState(false);
+      const [variantModifiers, setVariantModifiers] = React.useState({
+        alpha: 1.3,
+        beta: 1.1
+      });
+      const [dayCounter, setDayCounter] = React.useState(0);
       
       const canvasRef = React.useRef(null);
       const frameCountRef = React.useRef(0);
       const animationRef = React.useRef(null);
+      const peopleRef = React.useRef([]);
+      const virusParticlesRef = React.useRef([]);
       
-      const applyPreset = (preset) => {
-        const p = CONFIG.PRESETS[preset];
-        setIncubation(p.incube);
-        setInfectionTime(p.infect);
-        setInfectionRate(p.rate);
-        setInfectionDist(p.dist);
+      // Refs so the animation loop always reads current slider values
+      // without needing them in the dependency array
+      const infectionDistRef = React.useRef(infectionDist);
+      const infectionRateRef = React.useRef(infectionRate);
+      const survivalRateRef = React.useRef(survivalRate);
+      const quarantineDistRef = React.useRef(quarantineDist);
+      const mobilityLevelRef = React.useRef(mobilityLevel);
+      const hospitalCapacityRef = React.useRef(hospitalCapacity);
+      const mutationEnabledRef = React.useRef(mutationEnabled);
+      const mutationRateRef = React.useRef(mutationRate);
+      const vaccineEffectivenessRef = React.useRef(vaccineEffectiveness);
+      const immunityDurationRef = React.useRef(immunityDuration);
+      const isSpeedingUpRef = React.useRef(isSpeedingUp);
+      const pausedRef = React.useRef(paused);
+      const hospitalStrainedRef = React.useRef(false);
+      const variantModifiersRef = React.useRef(variantModifiers);
+      const populationRef = React.useRef(population);
+      
+      // Keep all refs in sync with state
+      React.useEffect(() => { infectionDistRef.current = infectionDist; }, [infectionDist]);
+      React.useEffect(() => { infectionRateRef.current = infectionRate; }, [infectionRate]);
+      React.useEffect(() => { survivalRateRef.current = survivalRate; }, [survivalRate]);
+      React.useEffect(() => { quarantineDistRef.current = quarantineDist; }, [quarantineDist]);
+      React.useEffect(() => { mobilityLevelRef.current = mobilityLevel; }, [mobilityLevel]);
+      React.useEffect(() => { hospitalCapacityRef.current = hospitalCapacity; }, [hospitalCapacity]);
+      React.useEffect(() => { mutationEnabledRef.current = mutationEnabled; }, [mutationEnabled]);
+      React.useEffect(() => { mutationRateRef.current = mutationRate; }, [mutationRate]);
+      React.useEffect(() => { vaccineEffectivenessRef.current = vaccineEffectiveness; }, [vaccineEffectiveness]);
+      React.useEffect(() => { immunityDurationRef.current = immunityDuration; }, [immunityDuration]);
+      React.useEffect(() => { isSpeedingUpRef.current = isSpeedingUp; }, [isSpeedingUp]);
+      React.useEffect(() => { pausedRef.current = paused; }, [paused]);
+      React.useEffect(() => { variantModifiersRef.current = variantModifiers; }, [variantModifiers]);
+      React.useEffect(() => { populationRef.current = population; }, [population]);
+      
+      const applyPreset = (presetKey) => {
+        const p = CONFIG.PRESETS[presetKey];
+        setIncubationDays(p.incubation);
+        setInfectionDays(p.infectionTime);
+        setInfectionRate(p.infectionRate);
+        setInfectionDist(p.infectionDist);
         setSurvivalRate(p.survival);
       };
       
       const startSimulation = () => {
         const newPeople = [];
+        const simWidth = CONFIG.SIM_AREA_WIDTH;
+        const simHeight = CONFIG.CANVAS_HEIGHT;
         
         for (let i = 0; i < population; i++) {
-          const x = Math.random() * (CONFIG.SIM_AREA_WIDTH - 20) + 10;
-          const y = Math.random() * (CONFIG.CANVAS_HEIGHT - 20) + 10;
-          newPeople.push(new Person(x, y, 'normal', incubation, infectionTime));
+          const x = Math.random() * (simWidth - 40) + 20;
+          const y = Math.random() * (simHeight - 40) + 20;
+          newPeople.push(new Person(x, y, 'normal', incubationDays, infectionDays));
         }
         
         const vacCount = Math.floor(population * vaccinationRate);
         for (let i = 0; i < vacCount; i++) {
-          newPeople[i].state = 'recovered';
+          newPeople[i].state = 'vaccinated';
         }
         
-        newPeople[0].state = 'infected';
+        if (newPeople.length > 0) {
+          newPeople[0].state = 'infected';
+        }
         
+        peopleRef.current = newPeople;
+        virusParticlesRef.current = [];
         setPeople(newPeople);
+        setVirusParticles([]);
+        setTrackData({ normal: [], carrier: [], sick: [], vaccinated: [], recovered: [], dead: [] });
+        frameCountRef.current = 0;
+        setDayCounter(0);
         setSimState('sim');
         setPaused(false);
       };
       
-      const infectOnePerson = () => {
-        setPeople(prev => {
-          const updated = [...prev];
-          const normalPerson = updated.find(p => p.state === 'normal');
-          if (normalPerson) normalPerson.state = 'infected';
-          return updated;
+      const triggerSuperSpreaderEvent = () => {
+        const centerX = Math.random() * (CONFIG.SIM_AREA_WIDTH * 0.6) + CONFIG.SIM_AREA_WIDTH * 0.2;
+        const centerY = Math.random() * (CONFIG.CANVAS_HEIGHT * 0.6) + CONFIG.CANVAS_HEIGHT * 0.2;
+        const eventRadius = 100;
+        
+        peopleRef.current.forEach(person => {
+          const dist = Math.sqrt((person.x - centerX) ** 2 + (person.y - centerY) ** 2);
+          if (dist > eventRadius && person.state === 'normal') {
+            const angle = Math.atan2(centerY - person.y, centerX - person.x);
+            const targetDist = eventRadius - 20;
+            person.x = centerX - Math.cos(angle) * targetDist;
+            person.y = centerY - Math.sin(angle) * targetDist;
+          }
+          if (dist < eventRadius && person.state === 'normal' && Math.random() < 0.6) {
+            person.state = 'infected';
+            person.sickTimer = person.totalSickFrames;
+          }
         });
+        
+        setSuperSpreaderActive(true);
+        setTimeout(() => setSuperSpreaderActive(false), 3000);
+      };
+      
+      const infectOnePerson = () => {
+        const normalPerson = peopleRef.current.find(p => p.state === 'normal');
+        if (normalPerson) {
+          normalPerson.state = 'infected';
+          normalPerson.sickTimer = normalPerson.totalSickFrames;
+        }
       };
       
       const resetSimulation = () => {
-        setTrackData({ normal: [], infected: [], recovered: [], dead: [] });
-        frameCountRef.current = 0;
         startSimulation();
+      };
+      
+      const goHome = () => {
+        setSimState('welcome');
+        setPaused(true);
+        peopleRef.current = [];
+        virusParticlesRef.current = [];
+        setPeople([]);
+        setVirusParticles([]);
+        setTrackData({ normal: [], carrier: [], sick: [], vaccinated: [], recovered: [], dead: [] });
+        setAnalysisData(null);
+        setHospitalStrained(false);
+        setDayCounter(0);
       };
       
       const goToAnalysis = () => {
         const total = trackData.normal.length;
         const lerp = (start, end, t) => start + (end - start) * t;
         const generatePoints = (data) => data.map((value, i) => ({
-          x: lerp(167, 567, i / total),
-          y: lerp(367, 176, value / population)
+          x: lerp(100, CONFIG.CANVAS_WIDTH - 100, i / Math.max(1, total - 1)),
+          y: lerp(CONFIG.CANVAS_HEIGHT - 150, 100, value / population)
         }));
         
         setAnalysisData({
           totalDays: total,
           normPoints: generatePoints(trackData.normal),
-          infectPoints: generatePoints(trackData.infected),
+          carrierPoints: generatePoints(trackData.carrier),
+          sickPoints: generatePoints(trackData.sick),
+          vaccinatedPoints: generatePoints(trackData.vaccinated),
           recoverPoints: generatePoints(trackData.recovered),
           deadPoints: generatePoints(trackData.dead)
         });
         setSimState('analysis');
       };
       
-      // Keyboard controls
       React.useEffect(() => {
         const handleKeyPress = (e) => {
-          if (e.code === 'Space' && simState === 'start') {
+          if (e.code === 'Space' && simState === 'welcome') {
             e.preventDefault();
-            startSimulation();
+            setSimState('start');
           }
           if (e.code === 'KeyP' && simState === 'sim') {
             setPaused(p => !p);
           }
-          if (e.code === 'KeyI' && simState === 'start') {
-            setShowInstructions(s => !s);
-          }
-          if (e.code === 'Space' && simState === 'sim' && trackData.infected.length > 0 
-              && trackData.infected[trackData.infected.length - 1] === 0) {
+          if (e.code === 'Space' && simState === 'sim' && 
+              trackData.carrier.length > 0 && trackData.sick.length > 0 &&
+              trackData.carrier[trackData.carrier.length - 1] === 0 &&
+              trackData.sick[trackData.sick.length - 1] === 0) {
             e.preventDefault();
             goToAnalysis();
           }
@@ -271,7 +709,6 @@
         return () => window.removeEventListener('keydown', handleKeyPress);
       }, [simState, trackData]);
       
-      // Animation loop
       React.useEffect(() => {
         if (simState !== 'sim' || !canvasRef.current) return;
         
@@ -283,50 +720,112 @@
             normal: '#FFFFFF',
             carrier: '#FFA500',
             sick: '#00FF00',
+            vaccinated: '#9370DB',
             recovered: '#00FFFF',
-            dead: '#960000'
+            dead: '#8B0000'
           };
           return colors[state] || '#FFFFFF';
         };
         
         const animate = () => {
-          ctx.fillStyle = '#646464';
+          ctx.fillStyle = '#2a2a2a';
           ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
           
-          if (!paused) {
-            const infected = people.filter(p => p.state === 'infected');
+          const people = peopleRef.current;
+          const virusParticles = virusParticlesRef.current;
+          
+          if (!pausedRef.current && people.length > 0) {
+            const updatesPerFrame = isSpeedingUpRef.current ? CONFIG.SPEED_MULTIPLIER : 1;
             
-            people.forEach(person => {
-              person.move(quarantineDist, infected);
+            for (let update = 0; update < updatesPerFrame; update++) {
+              const infected = people.filter(p => p.state === 'infected');
               
-              if (person.infectTimer === 0) {
-                person.tryInfect(people, infectionDist, infectionRate);
+              const activelySick = infected.filter(p => 
+                p.sickTimer <= p.activeInfectionFrames
+              ).length;
+              const capacity = Math.floor(populationRef.current * hospitalCapacityRef.current);
+              hospitalStrainedRef.current = (activelySick > capacity);
+              
+              // Only tick disease timers on the LAST iteration so they run once per rAF
+              const tickDisease = (update === updatesPerFrame - 1);
+              
+              people.forEach(person => {
+                person.move(quarantineDistRef.current, infected, CONFIG.SIM_AREA_WIDTH, CONFIG.CANVAS_HEIGHT, mobilityLevelRef.current);
+                
+                if (person.infectTimer === 0) {
+                  person.tryInfect(people, infectionDistRef.current, infectionRateRef.current, variantModifiersRef.current, virusParticles);
+                }
+                
+                person.updateDisease(survivalRateRef.current, hospitalStrainedRef.current, immunityDurationRef.current, vaccineEffectivenessRef.current, tickDisease);
+              });
+              
+              if (mutationEnabledRef.current && Math.random() < mutationRateRef.current && infected.length > 0) {
+                const infectedPerson = infected[Math.floor(Math.random() * infected.length)];
+                if (infectedPerson) {
+                  const newVariant = Math.random() < 0.5 ? 'alpha' : 'beta';
+                  infectedPerson.variant = newVariant;
+                }
               }
-              
-              person.updateDisease(survivalRate);
-            });
-            
-            if (frameCountRef.current === 0) {
-              const counts = { normal: 0, infected: 0, recovered: 0, dead: 0 };
-              people.forEach(p => counts[p.state]++);
+            }
+
+            // Day counter: ticks once every 60 rAF calls (= 1 second at 60fps = 1 day)
+            frameCountRef.current++;
+            if (frameCountRef.current >= 60) {
+              frameCountRef.current = 0;
+
+              const counts = { normal: 0, carrier: 0, sick: 0, vaccinated: 0, recovered: 0, dead: 0 };
+              people.forEach(p => {
+                if (p.state === 'infected') {
+                  if (p.sickTimer <= p.activeInfectionFrames) {
+                    counts.sick++;
+                  } else {
+                    counts.carrier++;
+                  }
+                } else {
+                  counts[p.state]++;
+                }
+              });
               
               setTrackData(prev => ({
                 normal: [...prev.normal, counts.normal],
-                infected: [...prev.infected, counts.infected],
+                carrier: [...prev.carrier, counts.carrier],
+                sick: [...prev.sick, counts.sick],
+                vaccinated: [...prev.vaccinated, counts.vaccinated],
                 recovered: [...prev.recovered, counts.recovered],
                 dead: [...prev.dead, counts.dead]
               }));
+              
+              setHospitalStrained(hospitalStrainedRef.current);
+              setDayCounter(d => d + 1);
             }
-            
-            frameCountRef.current = (frameCountRef.current + 1) % 60;
           }
           
+          // Update virus particles in the ref directly
+          virusParticlesRef.current = virusParticles.filter(p => p.alive);
+          virusParticlesRef.current.forEach(p => p.update());
+          virusParticlesRef.current.forEach(particle => {
+            if (particle.alive) particle.draw(ctx);
+          });
+          
+          // Draw people
           people.forEach(person => {
             const visualState = person.getVisualState();
             ctx.fillStyle = getStateColor(visualState);
             ctx.beginPath();
             ctx.arc(person.x, person.y, person.radius, 0, Math.PI * 2);
             ctx.fill();
+            
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            if (person.state === 'infected' && person.variant !== 'original') {
+              ctx.strokeStyle = '#FF0000';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.arc(person.x, person.y, person.radius + 3, 0, Math.PI * 2);
+              ctx.stroke();
+            }
           });
           
           animationRef.current = requestAnimationFrame(animate);
@@ -339,7 +838,7 @@
             cancelAnimationFrame(animationRef.current);
           }
         };
-      }, [simState, paused, people, infectionDist, infectionRate, survivalRate, quarantineDist]);
+      }, [simState]);
       
       return (
         <div style={{ 
@@ -348,29 +847,40 @@
           display: 'flex', 
           justifyContent: 'center', 
           alignItems: 'center',
-          backgroundColor: '#1a1a1a',
-          fontFamily: 'monospace'
+          backgroundColor: '#1a1a1a'
         }}>
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
             <canvas 
               ref={canvasRef}
               width={CONFIG.CANVAS_WIDTH}
               height={CONFIG.CANVAS_HEIGHT}
-              style={{ border: '2px solid #333' }}
             />
+            
+            {hospitalStrained && simState === 'sim' && (
+              <div className="alert-banner">
+                HOSPITALS OVERWHELMED - Death Rate Increased
+              </div>
+            )}
+            
+            {superSpreaderActive && simState === 'sim' && (
+              <div className="superspreader-alert">
+                LARGE GATHERING - Super-Spreader Event!
+              </div>
+            )}
+            
+            {simState === 'welcome' && (
+              <WelcomeScreen 
+                onContinue={() => setSimState('start')}
+              />
+            )}
             
             {simState === 'start' && (
               <StartScreen 
                 population={population}
                 setPopulation={setPopulation}
-                incubation={incubation}
-                setIncubation={setIncubation}
-                infectionTime={infectionTime}
-                setInfectionTime={setInfectionTime}
                 vaccinationRate={vaccinationRate}
                 setVaccinationRate={setVaccinationRate}
-                applyPreset={applyPreset}
-                showInstructions={showInstructions}
+                startSimulation={startSimulation}
               />
             )}
             
@@ -380,6 +890,13 @@
                 setPaused={setPaused}
                 infectOnePerson={infectOnePerson}
                 resetSimulation={resetSimulation}
+                goHome={goHome}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                incubationDays={incubationDays}
+                setIncubationDays={setIncubationDays}
+                infectionDays={infectionDays}
+                setInfectionDays={setInfectionDays}
                 infectionRate={infectionRate}
                 setInfectionRate={setInfectionRate}
                 infectionDist={infectionDist}
@@ -388,8 +905,27 @@
                 setSurvivalRate={setSurvivalRate}
                 quarantineDist={quarantineDist}
                 setQuarantineDist={setQuarantineDist}
+                mobilityLevel={mobilityLevel}
+                setMobilityLevel={setMobilityLevel}
+                hospitalCapacity={hospitalCapacity}
+                setHospitalCapacity={setHospitalCapacity}
+                mutationEnabled={mutationEnabled}
+                setMutationEnabled={setMutationEnabled}
+                mutationRate={mutationRate}
+                setMutationRate={setMutationRate}
+                vaccineEffectiveness={vaccineEffectiveness}
+                setVaccineEffectiveness={setVaccineEffectiveness}
+                immunityDuration={immunityDuration}
+                setImmunityDuration={setImmunityDuration}
+                triggerSuperSpreaderEvent={triggerSuperSpreaderEvent}
+                applyPreset={applyPreset}
                 trackData={trackData}
                 goToAnalysis={goToAnalysis}
+                isSpeedingUp={isSpeedingUp}
+                setIsSpeedingUp={setIsSpeedingUp}
+                dayCounter={dayCounter}
+                menuCollapsed={menuCollapsed}
+                setMenuCollapsed={setMenuCollapsed}
               />
             )}
             
@@ -398,6 +934,7 @@
                 data={analysisData}
                 trackData={trackData}
                 population={population}
+                goHome={goHome}
               />
             )}
           </div>
@@ -405,31 +942,113 @@
       );
     }
 
-    // Sub-components
-    function SliderControl({ label, value, onChange, min, max, step = 1 }) {
+    function SliderControl({ label, value, rawValue, onChange, min, max, step = 1 }) {
+      // rawValue is the actual number for the <input>; value is the display string
+      const inputVal = (rawValue !== undefined && rawValue !== null) ? rawValue : (typeof value === 'string' ? parseFloat(value) : value);
       return (
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>{label}: {value}</label>
+        <div style={{ marginBottom: '20px' }}>
+          <label className="slider-label">
+            {label}: <span className="slider-value">{value}</span>
+          </label>
           <input 
             type="range"
             min={min}
             max={max}
             step={step}
-            value={typeof value === 'string' ? parseFloat(value) : value}
+            value={inputVal}
             onChange={(e) => onChange(parseFloat(e.target.value))}
-            style={{ width: '200px', display: 'block' }}
           />
+        </div>
+      );
+    }
+
+    function WelcomeScreen({ onContinue }) {
+      return (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          padding: '40px',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}>
+          <h1 style={{ 
+            textAlign: 'center', 
+            fontSize: '56px', 
+            marginBottom: '30px',
+            textShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            fontWeight: '800'
+          }}>
+            Welcome to the ViralX Simulation
+          </h1>
+          
+          <div className="welcome-panel">
+            <h2 style={{ color: '#667eea', marginBottom: '20px', fontSize: '28px' }}>
+              How it works
+            </h2>
+            
+            <p style={{ lineHeight: '1.8', marginBottom: '20px' }}>
+              Tweak the sliders, pick a virus, and watch what happens. Each dot is a person — 
+              green means sick, orange means infected but not showing symptoms yet.
+            </p>
+            
+            <h3 style={{ color: '#667eea', marginTop: '30px', marginBottom: '15px', fontSize: '22px' }}>
+              The basics
+            </h3>
+            
+            <div style={{ lineHeight: '2', marginBottom: '20px' }}>
+              <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
+                <li><strong>Incubation Period</strong> - Days before symptoms appear</li>
+                <li><strong>Infectious Period</strong> - Days person remains contagious</li>
+                <li><strong>Infection Rate</strong> - How likely it is to spread on contact</li>
+                <li><strong>Infection Distance</strong> - How close people need to be</li>
+                <li><strong>Survival Rate</strong> - Chance of recovery vs death</li>
+                <li><strong>Quarantine Barrier</strong> - People will avoid the sick if this is on</li>
+              </ul>
+            </div>
+            
+            <h3 style={{ color: '#667eea', marginTop: '30px', marginBottom: '15px', fontSize: '22px' }}>
+              Advanced stuff
+            </h3>
+            
+            <div style={{ lineHeight: '2', marginBottom: '20px' }}>
+              <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
+                <li><strong>Mutations</strong> - New variants show up over time</li>
+                <li><strong>Super-Spreader Events</strong> - Trigger a big outbreak manually</li>
+                <li><strong>Hospital Capacity</strong> - Too many sick = higher death rate</li>
+                <li><strong>Vaccine Effectiveness</strong> - How well vaccination works</li>
+                <li><strong>Immunity Duration</strong> - How long protection lasts</li>
+                <li><strong>Mobility Patterns</strong> - Speed up or slow down movement</li>
+              </ul>
+            </div>
+            
+            <button 
+              onClick={onContinue}
+              style={{ 
+                width: '100%', 
+                padding: '20px',
+                fontSize: '20px',
+                marginTop: '20px'
+              }}
+              className="success"
+            >
+              Continue to Setup
+            </button>
+          </div>
         </div>
       );
     }
 
     function StartScreen({ 
       population, setPopulation, 
-      incubation, setIncubation, 
-      infectionTime, setInfectionTime, 
       vaccinationRate, setVaccinationRate,
-      applyPreset, 
-      showInstructions 
+      startSimulation
     }) {
       return (
         <div style={{
@@ -438,161 +1057,307 @@
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(100, 100, 100, 0.95)',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white',
-          padding: '20px'
+          padding: '40px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
         }}>
-          <h1 style={{ textAlign: 'center', fontSize: '48px', marginBottom: '40px' }}>ViralX Virus Sim</h1>
-          
-          <div style={{ position: 'absolute', left: '1000px', top: '150px' }}>
+          <div className="control-panel" style={{ width: '500px' }}>
+            <h2 style={{ marginBottom: '20px', fontSize: '24px', textAlign: 'center' }}>
+              Initial Parameters
+            </h2>
+            
             <SliderControl 
               label="Population"
               value={population}
+              rawValue={population}
               onChange={setPopulation}
               min={10}
-              max={300}
-            />
-            <SliderControl 
-              label="Incubation Time"
-              value={incubation.toFixed(1)}
-              onChange={setIncubation}
-              min={1}
-              max={10}
-              step={0.1}
-            />
-            <SliderControl 
-              label="Infection Time"
-              value={infectionTime.toFixed(1)}
-              onChange={setInfectionTime}
-              min={1}
-              max={40}
-              step={0.1}
+              max={250}
             />
             <SliderControl 
               label="Vaccination Rate"
               value={(vaccinationRate * 100).toFixed(0) + '%'}
+              rawValue={vaccinationRate * 100}
               onChange={(v) => setVaccinationRate(v / 100)}
               min={0}
               max={100}
             />
             
-            <h3 style={{ marginTop: '20px', marginBottom: '10px' }}>Disease Presets</h3>
-            <button onClick={() => applyPreset('COVID')}>COVID-19</button>
-            <button onClick={() => applyPreset('TB')}>TB</button>
-            <button onClick={() => applyPreset('RHINO')}>Rhinovirus</button>
-            <button onClick={() => applyPreset('MEASLES')}>Measles</button>
+            <button 
+              onClick={startSimulation}
+              style={{ width: '100%', padding: '20px', fontSize: '20px', marginTop: '30px' }}
+              className="success"
+            >
+              Start Simulation
+            </button>
           </div>
-          
-          <div style={{ position: 'absolute', left: '700px', top: '450px', textAlign: 'center', fontSize: '18px' }}>
-            <p style={{ marginBottom: '10px' }}>Press SPACE to continue</p>
-            <p style={{ marginBottom: '10px' }}>Press P to pause</p>
-            <p>Press I for instructions</p>
-          </div>
-          
-          {showInstructions && (
-            <div style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              backgroundColor: 'rgba(50, 50, 50, 0.98)',
-              padding: '30px',
-              borderRadius: '10px',
-              maxWidth: '600px'
-            }}>
-              <h2>Instructions</h2>
-              <p>This simulation models the spread of infectious diseases.</p>
-              <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
-                <li>White = Healthy</li>
-                <li>Orange = Infected (carrier, not visibly sick)</li>
-                <li>Green = Infected (visibly sick)</li>
-                <li>Cyan = Recovered (immune)</li>
-                <li>Dark Red = Dead</li>
-              </ul>
-              <p style={{ marginTop: '15px' }}>Adjust parameters to see how diseases spread!</p>
-            </div>
-          )}
         </div>
       );
     }
 
     function SimControls({ 
       paused, setPaused, 
-      infectOnePerson, resetSimulation,
+      infectOnePerson, resetSimulation, goHome,
+      activeTab, setActiveTab,
+      incubationDays, setIncubationDays,
+      infectionDays, setInfectionDays,
       infectionRate, setInfectionRate,
       infectionDist, setInfectionDist,
       survivalRate, setSurvivalRate,
       quarantineDist, setQuarantineDist,
-      trackData, goToAnalysis
+      mobilityLevel, setMobilityLevel,
+      hospitalCapacity, setHospitalCapacity,
+      mutationEnabled, setMutationEnabled,
+      mutationRate, setMutationRate,
+      vaccineEffectiveness, setVaccineEffectiveness,
+      immunityDuration, setImmunityDuration,
+      triggerSuperSpreaderEvent,
+      applyPreset,
+      trackData, goToAnalysis,
+      isSpeedingUp, setIsSpeedingUp,
+      dayCounter,
+      menuCollapsed, setMenuCollapsed
     }) {
+      const hasInfected = trackData.carrier.length > 0 && trackData.sick.length > 0;
+      const outbreakEnded = hasInfected && 
+        trackData.carrier[trackData.carrier.length - 1] === 0 &&
+        trackData.sick[trackData.sick.length - 1] === 0;
+      
       return (
-        <div style={{
-          position: 'absolute',
-          right: '20px',
-          top: '20px',
-          color: 'white',
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          padding: '20px',
-          borderRadius: '10px',
-          minWidth: '250px'
-        }}>
-          <h2 style={{ marginBottom: '15px' }}>Control Panel</h2>
-          <button onClick={() => setPaused(!paused)}>
-            {paused ? 'Start' : 'Pause'}
+        <>
+          <button 
+            className="toggle-button"
+            onClick={() => setMenuCollapsed(!menuCollapsed)}
+          >
+            {menuCollapsed ? '◀' : '▶'}
           </button>
-          <button onClick={infectOnePerson}>Infect One</button>
-          <button onClick={resetSimulation}>Reset</button>
+          
+          <div className={`control-panel ${menuCollapsed ? 'collapsed' : ''}`} style={{
+            position: 'absolute',
+            right: '20px',
+            top: '20px',
+            minWidth: '380px',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+          
+          <h2 style={{ marginBottom: '15px', color: 'white', fontSize: '22px' }}>
+            Control Panel - Day {dayCounter}
+          </h2>
+          
+          <button onClick={goHome} className="danger" style={{ width: '100%', marginBottom: '10px' }}>
+            🏠 Home
+          </button>
+          
+          <button onClick={() => setPaused(!paused)} style={{ width: '100%' }}>
+            {paused ? '▶️ Start' : '⏸️ Pause'}
+          </button>
+          
+          <button 
+            className="speed-control"
+            onMouseDown={() => setIsSpeedingUp(true)}
+            onMouseUp={() => setIsSpeedingUp(false)}
+            onMouseLeave={() => setIsSpeedingUp(false)}
+            onTouchStart={() => setIsSpeedingUp(true)}
+            onTouchEnd={() => setIsSpeedingUp(false)}
+            style={{ width: '100%', marginTop: '10px' }}
+          >
+            {isSpeedingUp ? '⚡ 4X SPEED' : '⚡ HOLD TO SPEED UP'}
+          </button>
+          
+          <button onClick={infectOnePerson} className="secondary" style={{ width: '100%', marginTop: '10px' }}>
+            💉 Infect One
+          </button>
+          <button onClick={resetSimulation} className="danger" style={{ width: '100%' }}>
+            🔄 Reset
+          </button>
+          <button onClick={goToAnalysis} className="success" style={{ width: '100%', marginTop: '8px' }}>
+            📊 View Analysis
+          </button>
           
           <div style={{ marginTop: '20px' }}>
-            <SliderControl 
-              label="Infection Rate"
-              value={(infectionRate * 100).toFixed(0) + '%'}
-              onChange={(v) => setInfectionRate(v / 100)}
-              min={0}
-              max={100}
-            />
-            <SliderControl 
-              label="Infection Distance"
-              value={infectionDist}
-              onChange={setInfectionDist}
-              min={0}
-              max={50}
-            />
-            <SliderControl 
-              label="Survival Rate"
-              value={(survivalRate * 100).toFixed(0) + '%'}
-              onChange={(v) => setSurvivalRate(v / 100)}
-              min={0}
-              max={100}
-            />
-            <SliderControl 
-              label="Quarantine Distance"
-              value={quarantineDist}
-              onChange={setQuarantineDist}
-              min={0}
-              max={50}
-            />
+            <div style={{ display: 'flex', gap: '5px', marginBottom: '15px', flexWrap: 'wrap' }}>
+              <button 
+                className={`tab ${activeTab === 'properties' ? 'active' : ''}`}
+                onClick={() => setActiveTab('properties')}
+                style={{ flex: '1 0 45%' }}
+              >
+                Properties
+              </button>
+              <button 
+                className={`tab ${activeTab === 'viruses' ? 'active' : ''}`}
+                onClick={() => setActiveTab('viruses')}
+                style={{ flex: '1 0 45%' }}
+              >
+                Viruses
+              </button>
+              <button 
+                className={`tab ${activeTab === 'advanced' ? 'active' : ''}`}
+                onClick={() => setActiveTab('advanced')}
+                style={{ flex: '1 0 45%' }}
+              >
+                Advanced
+              </button>
+            </div>
+            
+            {activeTab === 'properties' && (
+              <div className="tab-content">
+                <SliderControl 
+                  label="Incubation Period"
+                  value={incubationDays.toFixed(1) + ' days'}
+                  rawValue={incubationDays}
+                  onChange={setIncubationDays}
+                  min={0.5}
+                  max={15}
+                  step={0.5}
+                />
+                <SliderControl 
+                  label="Infectious Period"
+                  value={infectionDays.toFixed(1) + ' days'}
+                  rawValue={infectionDays}
+                  onChange={setInfectionDays}
+                  min={1}
+                  max={15}
+                  step={0.5}
+                />
+                <SliderControl 
+                  label="Infection Rate (R₀)"
+                  value={(infectionRate * 100).toFixed(0) + '%'}
+                  rawValue={infectionRate * 100}
+                  onChange={(v) => setInfectionRate(v / 100)}
+                  min={0}
+                  max={100}
+                />
+                <SliderControl 
+                  label="Infection Distance"
+                  value={(infectionDist / 10).toFixed(1) + ' meters'}
+                  rawValue={infectionDist}
+                  onChange={(v) => setInfectionDist(v)}
+                  min={0}
+                  max={100}
+                />
+                <SliderControl 
+                  label="Survival Rate"
+                  value={(survivalRate * 100).toFixed(1) + '%'}
+                  rawValue={survivalRate * 100}
+                  onChange={(v) => setSurvivalRate(v / 100)}
+                  min={0}
+                  max={100}
+                  step={0.1}
+                />
+                <SliderControl 
+                  label="Quarantine Barrier"
+                  value={quarantineDist.toFixed(0)}
+                  onChange={setQuarantineDist}
+                  min={0}
+                  max={50}
+                />
+              </div>
+            )}
+            
+            {activeTab === 'viruses' && (
+              <div className="tab-content">
+                <h3 style={{ color: 'white', marginBottom: '15px', fontSize: '18px' }}>
+                  Disease Presets
+                </h3>
+                <div className="preset-grid">
+                  <button onClick={() => applyPreset('COVID')}>COVID-19</button>
+                  <button onClick={() => applyPreset('TB')}>Tuberculosis</button>
+                  <button onClick={() => applyPreset('RHINO')}>Rhinovirus</button>
+                  <button onClick={() => applyPreset('MEASLES')}>Measles</button>
+                  <button onClick={() => applyPreset('INFLUENZA')}>Influenza</button>
+                  <button onClick={() => applyPreset('EBOLA')}>Ebola</button>
+                </div>
+              </div>
+            )}
+            
+            {activeTab === 'advanced' && (
+              <div className="tab-content">
+                <div style={{ marginBottom: '15px' }}>
+                  <label className="slider-label">
+                    <input 
+                      type="checkbox"
+                      checked={mutationEnabled}
+                      onChange={(e) => setMutationEnabled(e.target.checked)}
+                      style={{ marginRight: '10px' }}
+                    />
+                    Enable Mutations (red ring = variant)
+                  </label>
+                </div>
+                {mutationEnabled && (
+                  <SliderControl 
+                    label="Mutation Rate"
+                    value={(mutationRate * 100).toFixed(2) + '%'}
+                    rawValue={mutationRate * 100}
+                    onChange={(v) => setMutationRate(v / 100)}
+                    min={0}
+                    max={2}
+                    step={0.01}
+                  />
+                )}
+                
+                
+                <button 
+                  onClick={triggerSuperSpreaderEvent}
+                  className="secondary"
+                  style={{ width: '100%', marginBottom: '20px' }}
+                >
+                  Trigger Super-Spreader Event
+                </button>
+                
+                <SliderControl 
+                  label="Hospital Capacity"
+                  value={(hospitalCapacity * 100).toFixed(0) + '% of population'}
+                  rawValue={hospitalCapacity * 100}
+                  onChange={(v) => setHospitalCapacity(v / 100)}
+                  min={0}
+                  max={30}
+                />
+                
+                <SliderControl 
+                  label="Vaccine Effectiveness"
+                  value={(vaccineEffectiveness * 100).toFixed(0) + '%'}
+                  rawValue={vaccineEffectiveness * 100}
+                  onChange={(v) => setVaccineEffectiveness(v / 100)}
+                  min={0}
+                  max={100}
+                />
+                
+                <SliderControl 
+                  label="Immunity Duration"
+                  value={immunityDuration.toFixed(0) + ' weeks'}
+                  rawValue={immunityDuration}
+                  onChange={setImmunityDuration}
+                  min={0}
+                  max={52}
+                  step={1}
+                />
+                
+                <SliderControl 
+                  label="Mobility Patterns"
+                  value={mobilityLevel.toFixed(2)}
+                  rawValue={mobilityLevel}
+                  onChange={setMobilityLevel}
+                  min={0}
+                  max={2}
+                  step={0.1}
+                />
+              </div>
+            )}
           </div>
-          
-          {trackData.infected.length > 0 && trackData.infected[trackData.infected.length - 1] === 0 && (
-            <button onClick={goToAnalysis} style={{ 
-              marginTop: '20px', 
-              fontSize: '16px',
-              padding: '15px',
-              width: '100%'
-            }}>
-              📊 Analyze Data
-            </button>
-          )}
         </div>
+        </>
       );
     }
 
-    function AnalysisScreen({ data, trackData, population }) {
+    function AnalysisScreen({ data, trackData, population, goHome }) {
       const [timeSlider, setTimeSlider] = React.useState(0);
       const canvasRef = React.useRef(null);
       
-      const sliderTime = Math.floor(timeSlider);
+      const sliderTime = Math.min(Math.floor(timeSlider), data.totalDays - 1);
       
       React.useEffect(() => {
         if (!canvasRef.current || !data) return;
@@ -600,57 +1365,109 @@
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         
-        ctx.fillStyle = '#646464';
+        ctx.fillStyle = '#2a2a2a';
         ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
         
-        const drawLine = (points, color) => {
-          if (points.length < 2) return;
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 4;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 10; i++) {
+          const y = 100 + (CONFIG.CANVAS_HEIGHT - 250) * i / 10;
           ctx.beginPath();
-          ctx.moveTo(points[0].x, points[0].y);
-          points.forEach(p => ctx.lineTo(p.x, p.y));
-          ctx.stroke();
-        };
-        
-        drawLine(data.normPoints, '#FFFFFF');
-        drawLine(data.infectPoints, '#009600');
-        drawLine(data.recoverPoints, '#00FFFF');
-        drawLine(data.deadPoints, '#960000');
-        
-        const xPos = 167 + (567 - 167) * (sliderTime / (data.totalDays - 1));
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(xPos, 100);
-        ctx.lineTo(xPos, 425);
-        ctx.stroke();
-        
-        // Pie chart
-        const centerX = 993;
-        const centerY = 373;
-        const radius = 200;
-        
-        const normAngle = 360 * trackData.normal[sliderTime] / population;
-        const infAngle = normAngle + 360 * trackData.infected[sliderTime] / population;
-        const recAngle = infAngle + 360 * trackData.recovered[sliderTime] / population;
-        
-        for (let i = 0; i < 360; i++) {
-          const radian = i * Math.PI / 180;
-          const dx = Math.cos(radian) * radius + centerX;
-          const dy = -Math.sin(radian) * radius + centerY;
-          
-          ctx.strokeStyle = i <= normAngle ? '#FFFFFF' :
-                            i <= infAngle ? '#009600' :
-                            i <= recAngle ? '#00FFFF' : '#960000';
-          ctx.lineWidth = 6;
-          ctx.beginPath();
-          ctx.moveTo(centerX, centerY);
-          ctx.lineTo(dx, dy);
+          ctx.moveTo(100, y);
+          ctx.lineTo(CONFIG.CANVAS_WIDTH - 100, y);
           ctx.stroke();
         }
         
-      }, [data, sliderTime, trackData, population]);
+        const drawSmoothLine = (points, color) => {
+          if (points.length < 2) return;
+          
+          const gradient = ctx.createLinearGradient(0, CONFIG.CANVAS_HEIGHT - 150, 0, 100);
+          gradient.addColorStop(0, color);
+          gradient.addColorStop(1, color + '88');
+          
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 3;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = color;
+          
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
+          
+          for (let i = 1; i < points.length - 2; i++) {
+            const xc = (points[i].x + points[i + 1].x) / 2;
+            const yc = (points[i].y + points[i + 1].y) / 2;
+            ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+          }
+          
+          if (points.length > 2) {
+            ctx.quadraticCurveTo(
+              points[points.length - 2].x,
+              points[points.length - 2].y,
+              points[points.length - 1].x,
+              points[points.length - 1].y
+            );
+          }
+          
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        };
+        
+        drawSmoothLine(data.normPoints, '#FFFFFF');
+        drawSmoothLine(data.carrierPoints, '#FFA500');
+        drawSmoothLine(data.sickPoints, '#00FF00');
+        drawSmoothLine(data.vaccinatedPoints, '#9370DB');
+        drawSmoothLine(data.recoverPoints, '#00FFFF');
+        drawSmoothLine(data.deadPoints, '#FF0000');
+        
+        if (sliderTime < data.totalDays) {
+          const xPos = 100 + (CONFIG.CANVAS_WIDTH - 200) * (sliderTime / Math.max(1, data.totalDays - 1));
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 5]);
+          ctx.beginPath();
+          ctx.moveTo(xPos, 100);
+          ctx.lineTo(xPos, CONFIG.CANVAS_HEIGHT - 150);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+        
+        const centerX = CONFIG.CANVAS_WIDTH - 200;
+        const centerY = CONFIG.CANVAS_HEIGHT / 2;
+        const radius = 150;
+        
+        const total = trackData.normal[sliderTime] + trackData.carrier[sliderTime] + 
+                     trackData.sick[sliderTime] + trackData.vaccinated[sliderTime] +
+                     trackData.recovered[sliderTime] + trackData.dead[sliderTime];
+        
+        let currentAngle = -Math.PI / 2;
+        
+        const drawPieSegment = (value, color) => {
+          if (value === 0) return;
+          
+          const sliceAngle = (value / total) * Math.PI * 2;
+          
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+          ctx.closePath();
+          ctx.fill();
+          
+          ctx.strokeStyle = '#2a2a2a';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          
+          currentAngle += sliceAngle;
+        };
+        
+        drawPieSegment(trackData.normal[sliderTime], '#FFFFFF');
+        drawPieSegment(trackData.carrier[sliderTime], '#FFA500');
+        drawPieSegment(trackData.sick[sliderTime], '#00FF00');
+        drawPieSegment(trackData.vaccinated[sliderTime], '#9370DB');
+        drawPieSegment(trackData.recovered[sliderTime], '#00FFFF');
+        drawPieSegment(trackData.dead[sliderTime], '#8B0000');
+        
+      }, [data, sliderTime, trackData]);
       
       return (
         <div style={{
@@ -659,7 +1476,7 @@
           left: 0,
           width: '100%',
           height: '100%',
-          color: 'white'
+          background: '#2a2a2a'
         }}>
           <canvas 
             ref={canvasRef}
@@ -667,44 +1484,112 @@
             height={CONFIG.CANVAS_HEIGHT}
           />
           
-          <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)' }}>
-            <h1 style={{ fontSize: '48px' }}>Data Analysis</h1>
+          <div style={{ 
+            position: 'absolute', 
+            top: '30px', 
+            left: '50%', 
+            transform: 'translateX(-50%)',
+            textAlign: 'center'
+          }}>
+            <h1 style={{ 
+              fontSize: '48px',
+              color: 'white',
+              textShadow: '0 4px 20px rgba(0,0,0,0.5)',
+              marginBottom: '10px'
+            }}>
+              Data Analysis
+            </h1>
           </div>
           
-          <div style={{ position: 'absolute', bottom: '100px', left: '367px', width: '401px' }}>
+          <div style={{ 
+            position: 'absolute', 
+            bottom: '40px', 
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '60%',
+            background: 'rgba(0,0,0,0.7)',
+            padding: '20px',
+            borderRadius: '15px'
+          }}>
+            <label style={{ 
+              color: 'white', 
+              fontSize: '18px', 
+              display: 'block',
+              marginBottom: '15px',
+              textAlign: 'center',
+              fontWeight: '600'
+            }}>
+              Day {sliderTime} of {data.totalDays - 1}
+            </label>
             <input 
               type="range"
               min={0}
               max={data.totalDays - 1}
               value={timeSlider}
               onChange={(e) => setTimeSlider(parseFloat(e.target.value))}
-              style={{ width: '100%' }}
+              style={{ width: '100%', height: '10px' }}
             />
-            <div style={{ textAlign: 'center', fontSize: '18px', marginTop: '10px' }}>Day {sliderTime}</div>
           </div>
           
-          <div style={{ position: 'absolute', bottom: '50px', left: '200px', fontSize: '16px' }}>
-            <div style={{ marginBottom: '5px' }}>
-              ⚪ Normal: {trackData.normal[sliderTime]} ({Math.round(trackData.normal[sliderTime] / population * 100)}%)
+          <div style={{ 
+            position: 'absolute', 
+            top: '120px', 
+            left: '50px',
+            background: 'rgba(0,0,0,0.8)',
+            padding: '25px',
+            borderRadius: '15px',
+            minWidth: '320px'
+          }}>
+            <h3 style={{ color: 'white', marginBottom: '15px', fontSize: '20px' }}>
+              Statistics
+            </h3>
+            <div style={{ color: 'white', fontSize: '15px', lineHeight: '2' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span>Normal:</span>
+                <strong>{trackData.normal[sliderTime]} ({Math.round(trackData.normal[sliderTime] / population * 100)}%)</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span>Carrier:</span>
+                <strong>{trackData.carrier[sliderTime]} ({Math.round(trackData.carrier[sliderTime] / population * 100)}%)</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span>Sick:</span>
+                <strong>{trackData.sick[sliderTime]} ({Math.round(trackData.sick[sliderTime] / population * 100)}%)</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span>Vaccinated:</span>
+                <strong>{trackData.vaccinated[sliderTime]} ({Math.round(trackData.vaccinated[sliderTime] / population * 100)}%)</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span>Recovered:</span>
+                <strong>{trackData.recovered[sliderTime]} ({Math.round(trackData.recovered[sliderTime] / population * 100)}%)</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Dead:</span>
+                <strong>{trackData.dead[sliderTime]} ({Math.round(trackData.dead[sliderTime] / population * 100)}%)</strong>
+              </div>
             </div>
-            <div style={{ marginBottom: '5px' }}>
-              🟢 Infected: {trackData.infected[sliderTime]} ({Math.round(trackData.infected[sliderTime] / population * 100)}%)
-            </div>
-            <div style={{ marginBottom: '5px' }}>
-              🔵 Recovered: {trackData.recovered[sliderTime]} ({Math.round(trackData.recovered[sliderTime] / population * 100)}%)
-            </div>
-            <div>
-              🔴 Dead: {trackData.dead[sliderTime]} ({Math.round(trackData.dead[sliderTime] / population * 100)}%)
-            </div>
+          </div>
+          
+          <div style={{
+            position: 'absolute',
+            top: '30px',
+            right: '30px'
+          }}>
+            <button 
+              onClick={goHome}
+              className="success"
+              style={{ fontSize: '18px', padding: '15px 30px' }}
+            >
+              Try Again
+            </button>
           </div>
         </div>
       );
     }
 
-    // Render the app
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<VirusSim />);
   </script>
 </body>
 </html>
-danielqin@
