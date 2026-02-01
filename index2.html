@@ -481,6 +481,7 @@
           }
           
           this.state = Math.random() <= actualSurvival ? 'recovered' : 'dead';
+          this.immunityTimer = 0;
         }
       }
       
@@ -513,12 +514,12 @@
       const [survivalRate, setSurvivalRate] = React.useState(0.50);
       const [quarantineDist, setQuarantineDist] = React.useState(25);
       
-      const [mobilityLevel, setMobilityLevel] = React.useState(1);
-      const [hospitalCapacity, setHospitalCapacity] = React.useState(0);
+      const [mobilityLevel, setMobilityLevel] = React.useState(0.5);
+      const [hospitalCapacity, setHospitalCapacity] = React.useState(0.15);
       const [mutationEnabled, setMutationEnabled] = React.useState(false);
       const [mutationRate, setMutationRate] = React.useState(0);
-      const [vaccineEffectiveness, setVaccineEffectiveness] = React.useState(0);
-      const [immunityDuration, setImmunityDuration] = React.useState(0);
+      const [vaccineEffectiveness, setVaccineEffectiveness] = React.useState(0.50);
+      const [immunityDuration, setImmunityDuration] = React.useState(1);
       
       const [people, setPeople] = React.useState([]);
       const [virusParticles, setVirusParticles] = React.useState([]);
@@ -856,6 +857,36 @@
               height={CONFIG.CANVAS_HEIGHT}
             />
             
+            
+            {simState === 'sim' && (
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '28px',
+                padding: '10px 0',
+                background: 'rgba(0,0,0,0.45)',
+                zIndex: 5,
+                flexWrap: 'wrap'
+              }}>
+                {[
+                  { color: '#FFFFFF', label: 'Healthy' },
+                  { color: '#FFA500', label: 'Incubation' },
+                  { color: '#00FF00', label: 'Infectious' },
+                  { color: '#9370DB', label: 'Vaccinated' },
+                  { color: '#00FFFF', label: 'Recovered' },
+                  { color: '#8B0000', label: 'Dead' }
+                ].map(item => (
+                  <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                    <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: item.color }} />
+                    <span style={{ color: '#ccc', fontSize: '13px' }}>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             {hospitalStrained && simState === 'sim' && (
               <div className="alert-banner">
                 HOSPITALS OVERWHELMED - Death Rate Increased
@@ -990,43 +1021,52 @@
           
           <div className="welcome-panel">
             <h2 style={{ color: '#667eea', marginBottom: '20px', fontSize: '28px' }}>
-              How it works
+              How to Use This Simulation
             </h2>
             
             <p style={{ lineHeight: '1.8', marginBottom: '20px' }}>
-              Tweak the sliders, pick a virus, and watch what happens. Each dot is a person — 
-              green means sick, orange means infected but not showing symptoms yet.
+              ViralX is an epidemic simulation that shows how outbreaks move through a population. By adjusting key variables, you can observe how infections grow, slow down, or disappear as conditions change in real time.
             </p>
             
+            <p style={{ lineHeight: '1.8', marginBottom: '20px' }}>
+              You can load known diseases or create custom ones, then watch how different strategies influence the outcome. The simulation guides you naturally through the steps.
+            </p>
+
             <h3 style={{ color: '#667eea', marginTop: '30px', marginBottom: '15px', fontSize: '22px' }}>
-              The basics
+              Control Variables
             </h3>
-            
+
             <div style={{ lineHeight: '2', marginBottom: '20px' }}>
+              <strong>Basic Disease Properties:</strong>
               <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
-                <li><strong>Incubation Period</strong> - Days before symptoms appear</li>
-                <li><strong>Infectious Period</strong> - Days person remains contagious</li>
-                <li><strong>Infection Rate</strong> - How likely it is to spread on contact</li>
-                <li><strong>Infection Distance</strong> - How close people need to be</li>
-                <li><strong>Survival Rate</strong> - Chance of recovery vs death</li>
-                <li><strong>Quarantine Barrier</strong> - People will avoid the sick if this is on</li>
+                <li><strong>Incubation Period</strong> - Time between exposure and symptom onset</li>
+                <li><strong>Infectious Period</strong> - How long an infected person can spread the disease</li>
+                <li><strong>Infection Rate (R₀)</strong> - Likelihood of transmission per contact</li>
+                <li><strong>Infection Distance</strong> - Maximum range of spread in meters</li>
+                <li><strong>Survival Rate</strong> - Chance of recovery versus death</li>
+                <li><strong>Quarantine Barrier</strong> - Distance maintained from infected individuals</li>
               </ul>
             </div>
-            
-            <h3 style={{ color: '#667eea', marginTop: '30px', marginBottom: '15px', fontSize: '22px' }}>
-              Advanced stuff
-            </h3>
-            
+
             <div style={{ lineHeight: '2', marginBottom: '20px' }}>
+              <strong>Advanced Strategic Controls:</strong>
               <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
-                <li><strong>Mutations</strong> - New variants show up over time</li>
-                <li><strong>Super-Spreader Events</strong> - Trigger a big outbreak manually</li>
-                <li><strong>Hospital Capacity</strong> - Too many sick = higher death rate</li>
-                <li><strong>Vaccine Effectiveness</strong> - How well vaccination works</li>
-                <li><strong>Immunity Duration</strong> - How long protection lasts</li>
-                <li><strong>Mobility Patterns</strong> - Speed up or slow down movement</li>
+                <li><strong>Mutations</strong> - New variants with altered characteristics</li>
+                <li><strong>Super-Spreader Events</strong> - Large outbreaks caused by mass gatherings</li>
+                <li><strong>Hospital Capacity</strong> - Limits of the healthcare system</li>
+                <li><strong>Vaccine Effectiveness</strong> - Level of protection provided by vaccination</li>
+                <li><strong>Immunity Duration</strong> - Length of post-infection or vaccine protection (weeks)</li>
+                <li><strong>Mobility Patterns</strong> - How actively the population moves</li>
               </ul>
             </div>
+
+            <h3 style={{ color: '#667eea', marginTop: '30px', marginBottom: '15px', fontSize: '22px' }}>
+              What You Can Learn
+            </h3>
+            
+            <p style={{ lineHeight: '1.8', marginBottom: '20px' }}>
+              ViralX helps illustrate how outbreaks behave under different conditions. It allows you to explore disease dynamics, compare intervention strategies, and see how small changes can dramatically alter results. By experimenting with variables, you can observe how infections spread, peak, decline, or resurface—and how effective measures can flatten the curve.
+            </p>
             
             <button 
               onClick={onContinue}
@@ -1038,7 +1078,7 @@
               }}
               className="success"
             >
-              Continue to Setup
+              Begin Simulation
             </button>
           </div>
         </div>
@@ -1264,12 +1304,12 @@
                   Disease Presets
                 </h3>
                 <div className="preset-grid">
-                  <button onClick={() => applyPreset('COVID')}>COVID-19</button>
-                  <button onClick={() => applyPreset('TB')}>Tuberculosis</button>
-                  <button onClick={() => applyPreset('RHINO')}>Rhinovirus</button>
-                  <button onClick={() => applyPreset('MEASLES')}>Measles</button>
-                  <button onClick={() => applyPreset('INFLUENZA')}>Influenza</button>
-                  <button onClick={() => applyPreset('EBOLA')}>Ebola</button>
+                  <button onClick={() => { applyPreset('COVID'); setActiveTab('properties'); }}>COVID-19</button>
+                  <button onClick={() => { applyPreset('TB'); setActiveTab('properties'); }}>Tuberculosis</button>
+                  <button onClick={() => { applyPreset('RHINO'); setActiveTab('properties'); }}>Rhinovirus</button>
+                  <button onClick={() => { applyPreset('MEASLES'); setActiveTab('properties'); }}>Measles</button>
+                  <button onClick={() => { applyPreset('INFLUENZA'); setActiveTab('properties'); }}>Influenza</button>
+                  <button onClick={() => { applyPreset('EBOLA'); setActiveTab('properties'); }}>Ebola</button>
                 </div>
               </div>
             )}
@@ -1281,7 +1321,11 @@
                     <input 
                       type="checkbox"
                       checked={mutationEnabled}
-                      onChange={(e) => setMutationEnabled(e.target.checked)}
+                      onChange={(e) => {
+                        setMutationEnabled(e.target.checked);
+                        if (e.target.checked) setMutationRate(0.01);
+                        else setMutationRate(0);
+                      }}
                       style={{ marginRight: '10px' }}
                     />
                     Enable Mutations (red ring = variant)
@@ -1331,19 +1375,19 @@
                   value={immunityDuration.toFixed(0) + ' weeks'}
                   rawValue={immunityDuration}
                   onChange={setImmunityDuration}
-                  min={0}
+                  min={1}
                   max={52}
                   step={1}
                 />
                 
                 <SliderControl 
                   label="Mobility Patterns"
-                  value={mobilityLevel.toFixed(2)}
-                  rawValue={mobilityLevel}
-                  onChange={setMobilityLevel}
-                  min={0}
-                  max={2}
-                  step={0.1}
+                  value={(mobilityLevel * 100).toFixed(0) + '%'}
+                  rawValue={mobilityLevel * 100}
+                  onChange={(v) => setMobilityLevel(v / 100)}
+                  min={1}
+                  max={100}
+                  step={1}
                 />
               </div>
             )}
