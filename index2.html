@@ -418,14 +418,16 @@
         return person.state === 'infected' && person.sickTimer <= person.activeInfectionFrames;
       }
       
-      tryInfect(people, infectionDist, infectionRate, variantModifiers, virusParticles) {
+      tryInfect(people, infectionDist, infectionRate, currentVariant, virusParticles, vaccineEffectiveness) {
         if (this.state !== 'infected') return;
         
         let actualRate = infectionRate;
+        let actualDist = infectionDist;
         
-        if (this.variant === 'alpha') actualRate *= variantModifiers.alpha;
-        if (this.variant === 'beta') {
-          actualRate *= variantModifiers.beta;
+        // Use variant's absolute values if this person has the mutant
+        if (this.variant === 'mutant' && currentVariant) {
+          actualRate = currentVariant.infectionRate;
+          actualDist = currentVariant.infectionDist;
         }
         
         if (this.isSuperSpreader) {
@@ -433,11 +435,25 @@
         }
         
         for (const person of people) {
-          if (person.state === 'normal' && this.distanceTo(person) <= infectionDist) {
+          // Target both normal AND vaccinated people
+          if ((person.state === 'normal' || person.state === 'vaccinated') && this.distanceTo(person) <= actualDist) {
             if (Math.random() <= actualRate) {
+              // Vaccinated people resist based on vaccine effectiveness
+              if (person.state === 'vaccinated') {
+                if (Math.random() < vaccineEffectiveness) continue; // vaccine blocked it
+              }
               person.state = 'infected';
               person.variant = this.variant;
-              person.sickTimer = person.totalSickFrames;
+              
+              // Set timers based on variant or base values
+              if (this.variant === 'mutant' && currentVariant) {
+                person.incubationFrames = Math.floor(currentVariant.incubationDays * 60);
+                person.activeInfectionFrames = Math.floor(currentVariant.infectiousDays * 60);
+                person.totalSickFrames = person.incubationFrames + person.activeInfectionFrames;
+                person.sickTimer = person.totalSickFrames;
+              } else {
+                person.sickTimer = person.totalSickFrames;
+              }
               
               virusParticles.push(new VirusParticle(this.x, this.y, person.x, person.y));
             }
@@ -445,7 +461,7 @@
         }
       }
       
-      updateDisease(survivalRate, hospitalStrained, immunityDuration, vaccineEffectiveness, tickDisease) {
+      updateDisease(survivalRate, hospitalStrained, immunityDuration, vaccineEffectiveness, tickDisease, currentVariant) {
         if (!tickDisease) return; // timers only tick once per rAF
         
         if (this.state === 'vaccinated' && immunityDuration > 0) {
@@ -476,8 +492,12 @@
             actualSurvival *= 0.75;
           }
           
-          if (this.variant === 'beta') {
-            actualSurvival *= 0.80;
+          // Use variant's absolute survival if mutant
+          if (this.variant === 'mutant' && currentVariant) {
+            actualSurvival = currentVariant.survivalRate;
+            if (hospitalStrained) {
+              actualSurvival *= 0.75;
+            }
           }
           
           this.state = Math.random() <= actualSurvival ? 'recovered' : 'dead';
@@ -534,10 +554,7 @@
       const [analysisData, setAnalysisData] = React.useState(null);
       const [hospitalStrained, setHospitalStrained] = React.useState(false);
       const [superSpreaderActive, setSuperSpreaderActive] = React.useState(false);
-      const [variantModifiers, setVariantModifiers] = React.useState({
-        alpha: 1.3,
-        beta: 1.1
-      });
+      const [currentVariant, setCurrentVariant] = React.useState(null);
       const [dayCounter, setDayCounter] = React.useState(0);
       
       const canvasRef = React.useRef(null);
@@ -561,7 +578,7 @@
       const isSpeedingUpRef = React.useRef(isSpeedingUp);
       const pausedRef = React.useRef(paused);
       const hospitalStrainedRef = React.useRef(false);
-      const variantModifiersRef = React.useRef(variantModifiers);
+      const currentVariantRef = React.useRef(currentVariant);
       const populationRef = React.useRef(population);
       
       // Keep all refs in sync with state
@@ -577,7 +594,7 @@
       React.useEffect(() => { immunityDurationRef.current = immunityDuration; }, [immunityDuration]);
       React.useEffect(() => { isSpeedingUpRef.current = isSpeedingUp; }, [isSpeedingUp]);
       React.useEffect(() => { pausedRef.current = paused; }, [paused]);
-      React.useEffect(() => { variantModifiersRef.current = variantModifiers; }, [variantModifiers]);
+      React.useEffect(() => { currentVariantRef.current = currentVariant; }, [currentVariant]);
       React.useEffect(() => { populationRef.current = population; }, [population]);
       
       const applyPreset = (presetKey) => {
@@ -754,17 +771,25 @@
                 person.move(quarantineDistRef.current, infected, CONFIG.SIM_AREA_WIDTH, CONFIG.CANVAS_HEIGHT, mobilityLevelRef.current);
                 
                 if (person.infectTimer === 0) {
-                  person.tryInfect(people, infectionDistRef.current, infectionRateRef.current, variantModifiersRef.current, virusParticles);
+                  person.tryInfect(people, infectionDistRef.current, infectionRateRef.current, currentVariantRef.current, virusParticles, vaccineEffectivenessRef.current);
                 }
                 
-                person.updateDisease(survivalRateRef.current, hospitalStrainedRef.current, immunityDurationRef.current, vaccineEffectivenessRef.current, tickDisease);
+                person.updateDisease(survivalRateRef.current, hospitalStrainedRef.current, immunityDurationRef.current, vaccineEffectivenessRef.current, tickDisease, currentVariantRef.current);
               });
               
               if (mutationEnabledRef.current && Math.random() < mutationRateRef.current && infected.length > 0) {
                 const infectedPerson = infected[Math.floor(Math.random() * infected.length)];
-                if (infectedPerson) {
-                  const newVariant = Math.random() < 0.5 ? 'alpha' : 'beta';
-                  infectedPerson.variant = newVariant;
+                if (infectedPerson && infectedPerson.variant === 'original') {
+                  // Generate random variant with absolute values in slider ranges
+                  const newVariant = {
+                    incubationDays: 0.5 + Math.random() * 14.5,      // 0.5-15 days
+                    infectiousDays: 1 + Math.random() * 14,          // 1-15 days
+                    infectionRate: 0.01 + Math.random() * 0.99,      // 1%-100%
+                    infectionDist: 1 + Math.random() * 9,            // 1-10 meters
+                    survivalRate: 0.01 + Math.random() * 0.99        // 1%-100%
+                  };
+                  setCurrentVariant(newVariant);
+                  infectedPerson.variant = 'mutant';
                 }
               }
             }
@@ -949,6 +974,7 @@
                 immunityDuration={immunityDuration}
                 setImmunityDuration={setImmunityDuration}
                 triggerSuperSpreaderEvent={triggerSuperSpreaderEvent}
+                currentVariant={currentVariant}
                 applyPreset={applyPreset}
                 trackData={trackData}
                 goToAnalysis={goToAnalysis}
@@ -1078,7 +1104,7 @@
               }}
               className="success"
             >
-              Begin Simulation
+              Continue
             </button>
           </div>
         </div>
@@ -1155,6 +1181,7 @@
       vaccineEffectiveness, setVaccineEffectiveness,
       immunityDuration, setImmunityDuration,
       triggerSuperSpreaderEvent,
+      currentVariant,
       applyPreset,
       trackData, goToAnalysis,
       isSpeedingUp, setIsSpeedingUp,
@@ -1165,6 +1192,7 @@
       const outbreakEnded = hasInfected && 
         trackData.carrier[trackData.carrier.length - 1] === 0 &&
         trackData.sick[trackData.sick.length - 1] === 0;
+      const [showVariantInfo, setShowVariantInfo] = React.useState(false);
       
       return (
         <>
@@ -1268,15 +1296,15 @@
                   value={(infectionRate * 100).toFixed(0) + '%'}
                   rawValue={infectionRate * 100}
                   onChange={(v) => setInfectionRate(v / 100)}
-                  min={0}
+                  min={1}
                   max={100}
                 />
                 <SliderControl 
                   label="Infection Distance"
                   value={(infectionDist / 10).toFixed(1) + ' meters'}
                   rawValue={infectionDist}
-                  onChange={(v) => setInfectionDist(v)}
-                  min={0}
+                  onChange={setInfectionDist}
+                  min={10}
                   max={100}
                 />
                 <SliderControl 
@@ -1284,7 +1312,7 @@
                   value={(survivalRate * 100).toFixed(1) + '%'}
                   rawValue={survivalRate * 100}
                   onChange={(v) => setSurvivalRate(v / 100)}
-                  min={0}
+                  min={1}
                   max={100}
                   step={0.1}
                 />
@@ -1341,6 +1369,36 @@
                     max={2}
                     step={0.01}
                   />
+                )}
+
+                {mutationEnabled && currentVariant && (
+                  <div style={{ marginBottom: '15px' }}>
+                    <button 
+                      className="secondary"
+                      style={{ width: '100%', padding: '8px', fontSize: '13px' }}
+                      onClick={() => setShowVariantInfo(!showVariantInfo)}
+                    >
+                      🧬 {showVariantInfo ? 'Hide' : 'Show'} Mutant Properties
+                    </button>
+                    {showVariantInfo && (
+                      <div style={{ 
+                        background: 'rgba(255,0,0,0.15)', 
+                        border: '1px solid rgba(255,0,0,0.4)',
+                        borderRadius: '8px', 
+                        padding: '12px', 
+                        marginTop: '8px',
+                        fontSize: '13px',
+                        lineHeight: '1.9',
+                        color: '#ffcccc'
+                      }}>
+                        Incubation Period: {currentVariant.incubationDays.toFixed(1)} days<br/>
+                        Infectious Period: {currentVariant.infectiousDays.toFixed(1)} days<br/>
+                        Infection Rate: {(currentVariant.infectionRate * 100).toFixed(0)}%<br/>
+                        Infection Distance: {currentVariant.infectionDist.toFixed(1)} meters<br/>
+                        Survival Rate: {(currentVariant.survivalRate * 100).toFixed(1)}%
+                      </div>
+                    )}
+                  </div>
                 )}
                 
                 
