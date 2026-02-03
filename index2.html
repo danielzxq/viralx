@@ -770,9 +770,7 @@
               people.forEach(person => {
                 person.move(quarantineDistRef.current, infected, CONFIG.SIM_AREA_WIDTH, CONFIG.CANVAS_HEIGHT, mobilityLevelRef.current);
                 
-                if (person.infectTimer === 0) {
-                  person.tryInfect(people, infectionDistRef.current, infectionRateRef.current, currentVariantRef.current, virusParticles, vaccineEffectivenessRef.current);
-                }
+                person.tryInfect(people, infectionDistRef.current, infectionRateRef.current, currentVariantRef.current, virusParticles, vaccineEffectivenessRef.current);
                 
                 person.updateDisease(survivalRateRef.current, hospitalStrainedRef.current, immunityDurationRef.current, vaccineEffectivenessRef.current, tickDisease, currentVariantRef.current);
               });
@@ -1027,7 +1025,7 @@
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(135deg, #f4c430 0%, #667eea 100%)',
+          background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
           color: 'white',
           padding: '40px',
           overflowY: 'auto',
@@ -1123,7 +1121,7 @@
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(135deg, #f4c430 0%, #667eea 100%)',
+          background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
           color: 'white',
           padding: '40px',
           display: 'flex',
